@@ -1,71 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'The Lighthouse Cafe - Coastal Fine Dining')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-gray-50">
+
+<body class="bg-slate-100">
     <!-- Navigation -->
-    <nav x-data="{ open: false }" class="bg-white shadow-lg fixed w-full top-0 z-50">
+    <nav x-data="{ open: false }"
+        class="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 shadow-2xl fixed w-full top-0 z-50 border-b border-amber-500/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-linear-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z"/>
+                    <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
+                            <svg class="w-8 h-8 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-2xl font-serif font-bold text-gray-900">The Lighthouse</h1>
-                            <p class="text-xs text-gray-500 -mt-1">CAFE</p>
+                            <h1
+                                class="text-2xl font-serif font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
+                                The Lighthouse</h1>
+                            <p class="text-xs text-slate-400 -mt-1 tracking-widest">CAFE</p>
                         </div>
                     </a>
                 </div>
 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">Home</a>
-                    <a href="{{ route('menu') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">Menu</a>
-                    <a href="{{ route('reservations.create') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">Reservations</a>
-                    <a href="{{ route('membership') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">Membership</a>
-                    <a href="{{ route('about') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">About</a>
-                    <a href="{{ route('contact') }}" class="text-gray-700 hover:text-primary-600 font-medium transition">Contact</a>
-                    <a href="{{ route('membership') }}" class="btn-primary">Become a Member</a>
+                    <a href="{{ route('home') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Home</a>
+                    <a href="{{ route('menu') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Menu</a>
+                    <a href="{{ route('orders.index') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Order
+                        Online</a>
+                    <a href="{{ route('reservations.create') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Reservations</a>
+                    <a href="{{ route('membership') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Membership</a>
+                    <a href="{{ route('about') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">About</a>
+                    <a href="{{ route('contact') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Contact</a>
+                    <a href="{{ route('orders.index') }}" class="btn-primary">Order Now</a>
                 </div>
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-700 hover:text-primary-600">
+                    <button @click="open = !open" class="text-slate-200 hover:text-amber-400 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                            <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
             </div>
 
             <!-- Mobile Menu -->
-            <div x-show="open" @click.away="open = false" class="md:hidden pb-4">
-                <a href="{{ route('home') }}" class="block py-2 text-gray-700 hover:text-primary-600">Home</a>
-                <a href="{{ route('menu') }}" class="block py-2 text-gray-700 hover:text-primary-600">Menu</a>
-                <a href="{{ route('reservations.create') }}" class="block py-2 text-gray-700 hover:text-primary-600">Reservations</a>
-                <a href="{{ route('membership') }}" class="block py-2 text-gray-700 hover:text-primary-600">Membership</a>
-                <a href="{{ route('about') }}" class="block py-2 text-gray-700 hover:text-primary-600">About</a>
-                <a href="{{ route('contact') }}" class="block py-2 text-gray-700 hover:text-primary-600">Contact</a>
+            <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100" @click.away="open = false"
+                class="md:hidden pb-4 bg-slate-800/50 backdrop-blur-lg rounded-lg mt-2 p-4">
+                <a href="{{ route('home') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Home</a>
+                <a href="{{ route('menu') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Menu</a>
+                <a href="{{ route('reservations.create') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Reservations</a>
+                <a href="{{ route('membership') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Membership</a>
+                <a href="{{ route('about') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">About</a>
+                <a href="{{ route('contact') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Contact</a>
             </div>
         </div>
     </nav>
 
     <!-- Success Message -->
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg">
-        {{ session('success') }}
-    </div>
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-x-full"
+            x-transition:enter-end="opacity-100 transform translate-x-0"
+            class="fixed top-24 right-4 z-50 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg shadow-2xl border border-green-400/30">
+            <div class="flex items-center space-x-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+        </div>
     @endif
 
     <!-- Main Content -->
@@ -74,44 +110,101 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer
+        class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white mt-20 border-t-4 border-amber-500/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div>
-                    <h3 class="text-2xl font-serif font-bold mb-4">The Lighthouse Cafe</h3>
-                    <p class="text-gray-400">Coastal fine dining experience where elegance meets flavor.</p>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-serif font-bold text-amber-400">The Lighthouse</h3>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed">Coastal fine dining experience where elegance meets
+                        flavor.</p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-700 hover:bg-amber-500 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <span class="text-lg">📘</span>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-700 hover:bg-amber-500 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <span class="text-lg">📷</span>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-slate-700 hover:bg-amber-500 rounded-full flex items-center justify-center transition-colors duration-300">
+                            <span class="text-lg">🐦</span>
+                        </a>
+                    </div>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="{{ route('menu') }}" class="hover:text-white transition">Menu</a></li>
-                        <li><a href="{{ route('reservations.create') }}" class="hover:text-white transition">Reservations</a></li>
-                        <li><a href="{{ route('membership') }}" class="hover:text-white transition">Membership</a></li>
-                        <li><a href="{{ route('about') }}" class="hover:text-white transition">About Us</a></li>
+                    <h4 class="font-bold text-lg mb-4 text-amber-400">Quick Links</h4>
+                    <ul class="space-y-3 text-slate-300">
+                        <li><a href="{{ route('menu') }}"
+                                class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
+                                <span class="mr-2 group-hover:mr-3 transition-all">→</span> Menu
+                            </a></li>
+                        <li><a href="{{ route('reservations.create') }}"
+                                class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
+                                <span class="mr-2 group-hover:mr-3 transition-all">→</span> Reservations
+                            </a></li>
+                        <li><a href="{{ route('membership') }}"
+                                class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
+                                <span class="mr-2 group-hover:mr-3 transition-all">→</span> Membership
+                            </a></li>
+                        <li><a href="{{ route('about') }}"
+                                class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
+                                <span class="mr-2 group-hover:mr-3 transition-all">→</span> About Us
+                            </a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Hours</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Mon-Thu: 11am - 10pm</li>
-                        <li>Fri-Sat: 11am - 11pm</li>
-                        <li>Sunday: 10am - 9pm</li>
+                    <h4 class="font-bold text-lg mb-4 text-amber-400">Hours</h4>
+                    <ul class="space-y-3 text-slate-300">
+                        <li class="flex justify-between">
+                            <span>Mon-Thu:</span>
+                            <span class="text-amber-400 font-semibold">11am - 10pm</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Fri-Sat:</span>
+                            <span class="text-amber-400 font-semibold">11am - 11pm</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Sunday:</span>
+                            <span class="text-amber-400 font-semibold">10am - 9pm</span>
+                        </li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>123 Harbor Drive</li>
-                        <li>San Francisco, CA 94111</li>
-                        <li>(415) 555-0123</li>
-                        <li>info@lighthousecafe.com</li>
+                    <h4 class="font-bold text-lg mb-4 text-amber-400">Contact</h4>
+                    <ul class="space-y-3 text-slate-300">
+                        <li class="flex items-start">
+                            <span class="text-amber-400 mr-2">📍</span>
+                            <span>123 Harbor Drive<br>San Francisco, CA 94111</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-amber-400 mr-2">📞</span>
+                            <a href="tel:4155550123" class="hover:text-amber-400 transition-colors">(415) 555-0123</a>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-amber-400 mr-2">✉️</span>
+                            <a href="mailto:info@lighthousecafe.com"
+                                class="hover:text-amber-400 transition-colors">info@lighthousecafe.com</a>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 The Lighthouse Cafe. All rights reserved.</p>
+            <div class="border-t border-slate-700 mt-12 pt-8 text-center">
+                <p class="text-slate-400">&copy; 2025 The Lighthouse Cafe. All rights reserved.</p>
+                <p class="text-slate-500 text-sm mt-2">Crafted with excellence and passion</p>
             </div>
         </div>
     </footer>
 </body>
+
 </html>

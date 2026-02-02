@@ -1,8 +1,9 @@
 <?php
-// app/Models/Dish.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\OrderItem;
 
 class Dish extends Model
 {
@@ -22,4 +23,10 @@ class Dish extends Model
         'rating' => 'decimal:1',
         'is_available' => 'boolean'
     ];
+
+    // Add this relationship
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

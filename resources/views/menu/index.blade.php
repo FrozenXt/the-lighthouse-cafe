@@ -56,45 +56,57 @@
                         {{ $category }}
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        @foreach ($items as $dish)
-                            <div
-                                class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 overflow-hidden group">
-                                <div class="relative overflow-hidden h-64">
-                                    <img src="{{ $dish->image }}" alt="{{ $dish->name }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                                    <div
-                                        class="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
-                                        ⭐ {{ $dish->rating }}
-                                    </div>
-                                    <div
-                                        class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    </div>
-                                </div>
-                                <div class="p-8">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h3
-                                            class="text-2xl font-serif font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-300">
-                                            {{ $dish->name }}
-                                        </h3>
-                                        <span
-                                            class="text-3xl font-extrabold text-teal-600">${{ number_format($dish->price, 2) }}</span>
-                                    </div>
-                                    <p class="text-gray-600 mb-6 leading-relaxed">{{ $dish->description }}</p>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex text-yellow-500">
-                                            @for ($i = 0; $i < floor($dish->rating); $i++)
-                                                ⭐
-                                            @endfor
+                    @if ($items->count() > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                            @foreach ($items as $dish)
+                                <div
+                                    class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 overflow-hidden group">
+                                    <div class="relative overflow-hidden h-64">
+                                        <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
+                                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                                        <div
+                                            class="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-pulse">
+                                            ⭐ {{ $dish->rating }}
                                         </div>
-                                        <a href="{{ route('orders.index') }}"
-                                            class="text-teal-600 hover:text-teal-700 font-bold text-lg transition-colors duration-300">Order
-                                            Now →</a>
+                                        <div
+                                            class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        </div>
+                                    </div>
+                                    <div class="p-8">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <h3
+                                                class="text-2xl font-serif font-bold text-gray-900 group-hover:text-teal-600 transition-colors duration-300">
+                                                {{ $dish->name }}
+                                            </h3>
+                                            <span
+                                                class="text-3xl font-extrabold text-teal-600">${{ number_format($dish->price, 2) }}</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-6 leading-relaxed">{{ $dish->description }}</p>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex text-yellow-500">
+                                                @for ($i = 0; $i < floor($dish->rating); $i++)
+                                                    ⭐
+                                                @endfor
+                                            </div>
+                                            <a href="{{ route('orders.index') }}"
+                                                class="text-teal-600 hover:text-teal-700 font-bold text-lg transition-colors duration-300">Order
+                                                Now →</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <p class="text-gray-600 text-lg font-semibold">Coming Soon</p>
+                            <p class="text-gray-500">Dishes will be added to this category soon</p>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

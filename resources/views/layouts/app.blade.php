@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'The Lighthouse Cafe - Coastal Fine Dining')</title>
     @vite(['resources/css/app.css'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -18,12 +19,11 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
+                        <!-- IMAGE LOGO -->
                         <div
-                            class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-amber-500/50 transition-all duration-300 group-hover:scale-110">
-                            <svg class="w-8 h-8 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
-                            </svg>
+                            class="relative w-20 h-20 rounded-full overflow-hidden hover:scale-105 transition-transform">
+                            <img src="{{ asset('images/lighthouselogo.png') }}" alt="The Lighthouse Cafe Logo"
+                                class="w-full h-full object-cover">
                         </div>
                         <div>
                             <h1
@@ -76,6 +76,9 @@
                     class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Home</a>
                 <a href="{{ route('menu') }}"
                     class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Menu</a>
+                <a href="{{ route('orders.index') }}"
+                    class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Order
+                    Online</a>
                 <a href="{{ route('reservations.create') }}"
                     class="block py-3 text-slate-200 hover:text-amber-400 hover:bg-slate-700/50 px-4 rounded transition-all">Reservations</a>
                 <a href="{{ route('membership') }}"
@@ -116,12 +119,10 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
-                            <svg class="w-6 h-6 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
-                            </svg>
+                        <!-- IMAGE LOGO IN FOOTER -->
+                        <div class="relative w-12 h-12 rounded-full overflow-hidden">
+                            <img src="{{ asset('images/lighthouselogo.png') }}" alt="The Lighthouse Cafe Logo"
+                                class="w-full h-full object-cover">
                         </div>
                         <h3 class="text-2xl font-serif font-bold text-amber-400">The Lighthouse</h3>
                     </div>
@@ -161,6 +162,10 @@
                                 class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
                                 <span class="mr-2 group-hover:mr-3 transition-all">→</span> About Us
                             </a></li>
+                        <li><a href="{{ route('contact') }}"
+                                class="hover:text-amber-400 transition-colors duration-300 flex items-center group">
+                                <span class="mr-2 group-hover:mr-3 transition-all">→</span> Contact
+                            </a></li>
                     </ul>
                 </div>
                 <div>
@@ -168,15 +173,15 @@
                     <ul class="space-y-3 text-slate-300">
                         <li class="flex justify-between">
                             <span>Mon-Thu:</span>
-                            <span class="text-amber-400 font-semibold">11am - 10pm</span>
+                            <span class="text-amber-400 font-semibold">6am - 2pm</span>
                         </li>
                         <li class="flex justify-between">
                             <span>Fri-Sat:</span>
-                            <span class="text-amber-400 font-semibold">11am - 11pm</span>
+                            <span class="text-amber-400 font-semibold">6am - 2pm</span>
                         </li>
                         <li class="flex justify-between">
                             <span>Sunday:</span>
-                            <span class="text-amber-400 font-semibold">10am - 9pm</span>
+                            <span class="text-amber-400 font-semibold">6am - 2pm</span>
                         </li>
                     </ul>
                 </div>
@@ -185,11 +190,11 @@
                     <ul class="space-y-3 text-slate-300">
                         <li class="flex items-start">
                             <span class="text-amber-400 mr-2">📍</span>
-                            <span>123 Harbor Drive<br>San Francisco, CA 94111</span>
+                            <span>20 High ST<br>Medford, MA 02155</span>
                         </li>
                         <li class="flex items-center">
                             <span class="text-amber-400 mr-2">📞</span>
-                            <a href="tel:4155550123" class="hover:text-amber-400 transition-colors">(415) 555-0123</a>
+                            <a href="tel:7813910009" class="hover:text-amber-400 transition-colors">(781) 391-0009</a>
                         </li>
                         <li class="flex items-center">
                             <span class="text-amber-400 mr-2">✉️</span>
@@ -205,6 +210,8 @@
             </div>
         </div>
     </footer>
+
+    @stack('scripts')
 </body>
 
 </html>

@@ -5,19 +5,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dish;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DishController extends Controller
 {
     public function index()
     {
-        $dishes = Dish::orderBy('category')->orderBy('name')->paginate(20);
+        $dishes = Dish::with('category')->orderBy('category_id')->orderBy('name')->paginate(20);
         return view('admin.dishes.index', compact('dishes'));
     }
 
     public function create()
     {
-        $categories = ['Appetizers', 'Seafood', 'Steaks & Chops', 'Pasta & Risotto', 'Desserts'];
+        $categories = Category::where('is_active', true)->orderBy('display_order')->get();
         return view('admin.dishes.create', compact('categories'));
     }
 
@@ -27,11 +29,17 @@ class DishController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'required|url',
-            'category' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
+            'category_id' => 'required|exists:categories,id',
             'rating' => 'required|numeric|min:0|max:5',
             'featured_type' => 'required|in:none,day,week'
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('dishes', 'public');
+            $validated['image'] = $imagePath;
+        }
 
         Dish::create($validated);
 
@@ -41,7 +49,7 @@ class DishController extends Controller
 
     public function edit(Dish $dish)
     {
-        $categories = ['Appetizers', 'Seafood', 'Steaks & Chops', 'Pasta & Risotto', 'Desserts'];
+        $categories = Category::where('is_active', true)->orderBy('display_order')->get();
         return view('admin.dishes.edit', compact('dish', 'categories'));
     }
 
@@ -51,11 +59,23 @@ class DishController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'required|url',
-            'category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', // Optional on update
+            'category_id' => 'required|exists:categories,id',
             'rating' => 'required|numeric|min:0|max:5',
             'featured_type' => 'required|in:none,day,week'
         ]);
+
+        // Handle image upload if new image provided
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($dish->image && Storage::disk('public')->exists($dish->image)) {
+                Storage::disk('public')->delete($dish->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('dishes', 'public');
+            $validated['image'] = $imagePath;
+        }
 
         $dish->update($validated);
 
@@ -65,7 +85,13 @@ class DishController extends Controller
 
     public function destroy(Dish $dish)
     {
+        // Delete image file
+        if ($dish->image && Storage::disk('public')->exists($dish->image)) {
+            Storage::disk('public')->delete($dish->image);
+        }
+
         $dish->delete();
+
         return redirect()->route('admin.dishes.index')
             ->with('success', 'Dish deleted successfully!');
     }

@@ -1,4 +1,3 @@
-<!-- resources/views/admin/dishes/create.blade.php -->
 @extends('admin.layouts.app')
 
 @section('title', 'Add New Dish')
@@ -18,7 +17,7 @@
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h2 class="text-3xl font-serif font-bold text-slate-800 mb-6">Add New Dish</h2>
 
-            <form action="{{ route('admin.dishes.store') }}" method="POST">
+            <form action="{{ route('admin.dishes.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @include('admin.dishes.form')
 

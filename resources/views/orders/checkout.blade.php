@@ -84,8 +84,10 @@
                                 class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200"></textarea>
                         </div>
 
-                        <button type="submit" :disabled="cart.length === 0"
-                            class="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-slate-900 font-bold py-4 rounded-lg transition text-xl">
+                        <button type="submit" :disabled="cart.length === 0" x-data="{ submitting: false }"
+                            @click="submitting = true"
+                            class="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-slate-900 font-bold py-4 rounded-lg transition text-xl"
+                            x-text="submitting ? 'Processing Order...' : 'Place Order - $' + grandTotal.toFixed(2)">
                             Place Order - $<span x-text="grandTotal.toFixed(2)"></span>
                         </button>
                     </form>
@@ -98,12 +100,18 @@
 
                         <div class="space-y-4 mb-6">
                             <template x-for="item in cart" :key="item.id">
-                                <div class="flex justify-between items-start border-b border-slate-200 pb-3">
-                                    <div class="flex-1">
+                                <div class="flex items-center gap-4 border-b border-slate-200 pb-4">
+                                    <img :src="item.image || '{{ asset('images/placeholder-dish.jpg') }}'"
+                                        :alt="item.name"
+                                        x-on:error="$event.target.src='{{ asset('images/placeholder-dish.jpg') }}'"
+                                        class="w-16 h-16 object-cover rounded-lg border border-slate-200 flex-shrink-0">
+                                    <div class="flex-1 min-w-0">
                                         <h4 class="font-semibold text-slate-800" x-text="item.name"></h4>
                                         <p class="text-sm text-slate-600">Qty: <span x-text="item.quantity"></span></p>
+                                        <p class="text-sm text-amber-600 font-semibold">$<span
+                                                x-text="item.price.toFixed(2)"></span> each</p>
                                     </div>
-                                    <span class="font-bold text-amber-600">$<span
+                                    <span class="font-bold text-amber-600 text-lg">$<span
                                             x-text="(item.price * item.quantity).toFixed(2)"></span></span>
                                 </div>
                             </template>
@@ -172,6 +180,13 @@
                         return;
                     }
 
+                    // Validate form
+                    if (!this.formData.customer_name || !this.formData.customer_email || !this.formData
+                        .customer_phone || !this.formData.delivery_address) {
+                        alert('Please fill in all required fields!');
+                        return;
+                    }
+
                     const formData = new FormData();
                     formData.append('customer_name', this.formData.customer_name);
                     formData.append('customer_email', this.formData.customer_email);
@@ -180,7 +195,8 @@
                     formData.append('payment_method', this.formData.payment_method);
                     formData.append('special_instructions', this.formData.special_instructions);
                     formData.append('cart', JSON.stringify(this.cart));
-                    formData.append('_token', '{{ csrf_token() }}');
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'));
 
                     try {
                         const response = await fetch('{{ route('orders.store') }}', {
@@ -188,13 +204,17 @@
                             body: formData
                         });
 
-                        if (response.ok) {
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
                             localStorage.removeItem('cart');
-                            window.location.href = response.url;
+                            window.location.href = data.redirect;
                         } else {
-                            alert('Failed to place order. Please try again.');
+                            alert(data.message || 'Failed to place order. Please try again.');
+                            console.error('Order error:', data);
                         }
                     } catch (error) {
+                        console.error('Error:', error);
                         alert('An error occurred. Please try again.');
                     }
                 }

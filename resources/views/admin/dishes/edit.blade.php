@@ -1,4 +1,3 @@
-<!-- resources/views/admin/dishes/edit.blade.php -->
 @extends('admin.layouts.app')
 
 @section('title', 'Edit Dish')
@@ -18,7 +17,7 @@
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h2 class="text-3xl font-serif font-bold text-slate-800 mb-6">Edit Dish</h2>
 
-            <form action="{{ route('admin.dishes.update', $dish) }}" method="POST">
+            <form action="{{ route('admin.dishes.update', $dish) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 @include('admin.dishes.form')

@@ -43,10 +43,12 @@
                                 <template x-for="(item, index) in cart" :key="item.id">
                                     <div class="p-6 hover:bg-slate-50 transition">
                                         <div class="flex items-center gap-6">
-                                            <!-- Item Number -->
-                                            <div
-                                                class="flex-shrink-0 w-10 h-10 bg-amber-500 text-slate-900 rounded-full flex items-center justify-center font-bold">
-                                                <span x-text="index + 1"></span>
+                                            <!-- Dish Image -->
+                                            <div class="flex-shrink-0">
+                                                <img :src="item.image || '{{ asset('images/placeholder-dish.jpg') }}'"
+                                                    :alt="item.name"
+                                                    x-on:error="$event.target.src='{{ asset('images/placeholder-dish.jpg') }}'"
+                                                    class="w-20 h-20 object-cover rounded-lg border-2 border-slate-200">
                                             </div>
 
                                             <!-- Item Details -->

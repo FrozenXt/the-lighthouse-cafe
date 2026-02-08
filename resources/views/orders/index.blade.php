@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Order Online - The Lighthouse Cafe')
-
-
 <!-- Hero -->
 <div class="relative h-80 bg-cover bg-center"
     style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=600&fit=crop');">
@@ -72,34 +70,48 @@
                     {{ $category }}
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" x-data="orderActions()">
-                    @foreach ($items as $dish)
-                        <div
-                            class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-slate-200">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="{{ $dish->image }}" alt="{{ $dish->name }}"
-                                    class="w-full h-full object-cover hover:scale-110 transition duration-500">
-                                <div
-                                    class="absolute top-4 right-4 bg-amber-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
-                                    ⭐ {{ $dish->rating }}
+                @if (count($items) > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" x-data="orderActions()">
+                        @foreach ($items as $dish)
+                            <div
+                                class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-slate-200">
+                                <div class="relative h-48 overflow-hidden">
+                                    <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
+                                        class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                                    <div
+                                        class="absolute top-4 right-4 bg-amber-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">
+                                        ⭐ {{ $dish->rating }}
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-2xl font-serif font-bold text-slate-800 mb-2">{{ $dish->name }}
+                                    </h3>
+                                    <p class="text-slate-600 mb-4 line-clamp-2">{{ $dish->description }}</p>
+                                    <div class="flex justify-between items-center">
+                                        <span
+                                            class="text-3xl font-bold text-amber-600">${{ number_format($dish->price, 2) }}</span>
+                                        <button
+                                            @click="addToCart({{ $dish->id }}, '{{ addslashes($dish->name) }}', {{ $dish->price }}, $event.target.getAttribute('data-image'))"
+                                            data-image="{{ $dish->image_url }}"
+                                            class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2 rounded-lg transition transform hover:scale-105">
+                                            Add to Cart
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="p-6">
-                                <h3 class="text-2xl font-serif font-bold text-slate-800 mb-2">{{ $dish->name }}</h3>
-                                <p class="text-slate-600 mb-4 line-clamp-2">{{ $dish->description }}</p>
-                                <div class="flex justify-between items-center">
-                                    <span
-                                        class="text-3xl font-bold text-amber-600">${{ number_format($dish->price, 2) }}</span>
-                                    <button
-                                        @click="addToCart({{ $dish->id }}, '{{ addslashes($dish->name) }}', {{ $dish->price }})"
-                                        class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2 rounded-lg transition transform hover:scale-105">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
+                        <svg class="w-16 h-16 mx-auto text-slate-400 mb-4" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <p class="text-slate-600 text-lg font-semibold">Coming Soon</p>
+                        <p class="text-slate-500">Dishes will be added to this category soon</p>
+                    </div>
+                @endif
             </div>
         @endforeach
     </div>
@@ -183,7 +195,15 @@
     // Order actions (Add to cart)
     function orderActions() {
         return {
-            addToCart(id, name, price) {
+            addToCart(id, name, price, image) {
+                // Debug: log the image URL
+                console.log('Adding to cart:', {
+                    id,
+                    name,
+                    price,
+                    image
+                });
+
                 let cart = CartStorage.get();
                 const existingItem = cart.find(item => item.id === id);
 
@@ -194,6 +214,7 @@
                         id,
                         name,
                         price,
+                        image,
                         quantity: 1
                     });
                 }

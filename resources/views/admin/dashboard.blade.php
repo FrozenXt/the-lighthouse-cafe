@@ -204,7 +204,7 @@
                                     class="flex-shrink-0 w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
                                     {{ $index + 1 }}
                                 </div>
-                                <img src="{{ $dish->image }}" alt="{{ $dish->name }}"
+                                <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
                                     class="w-14 h-14 rounded-lg object-cover">
                                 <div class="flex-1 min-w-0">
                                     <h4 class="font-bold text-slate-800 truncate">{{ $dish->name }}</h4>

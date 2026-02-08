@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Dish;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,10 +13,14 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $dishes = Dish::where('is_available', true)
-            ->orderBy('category')
+        // Get active categories with their available dishes
+        $dishes = Category::where('is_active', true)
+            ->orderBy('display_order')
+            ->with(['dishes' => function ($query) {
+                $query->where('is_available', true)->orderBy('name');
+            }])
             ->get()
-            ->groupBy('category');
+            ->mapWithKeys(fn($category) => [$category->name => $category->dishes]);
 
         return view('orders.index', compact('dishes'));
     }
@@ -86,11 +91,17 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.success', $order->id)
-                ->with('success', 'Order placed successfully!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Order placed successfully!',
+                'redirect' => route('orders.success', $order->id)
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to place order. Please try again.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to place order. Please try again.'
+            ], 400);
         }
     }
 

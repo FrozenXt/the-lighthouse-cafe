@@ -6,11 +6,24 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DishController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Admin\MemberController;
+
+// Storage Files - Serve uploaded images and files (Must be first to avoid conflicts)
+Route::get('/storage/{path}', function ($path) {
+    $storagePath = storage_path('app/public/' . $path);
+
+    if (!file_exists($storagePath)) {
+        abort(404);
+    }
+
+    return response()->file($storagePath);
+})->where('path', '.*')->name('storage.file');
 
 // Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,7 +48,10 @@ Route::get('/orders/track/{orderNumber}', [OrderController::class, 'track'])->na
 
 // About & Contact
 Route::view('/about', 'about')->name('about');
-Route::view('/contact', 'contact')->name('contact');
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -57,6 +73,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Dishes/Menu Management
         Route::resource('dishes', DishController::class);
         Route::post('/dishes/{dish}/toggle-availability', [DishController::class, 'toggleAvailability'])->name('dishes.toggle-availability');
+
+        // Categories Management
+        Route::resource('categories', CategoryController::class);
+        Route::post('/categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active');
 
         // Reservations Management
         Route::get('/reservations', [AdminReservationController::class, 'index'])->name('reservations.index');

@@ -124,7 +124,7 @@
                         <div
                             class="card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 overflow-hidden border border-slate-200">
                             <div class="relative overflow-hidden h-72">
-                                <img src="{{ $dish->image }}" alt="{{ $dish->name }}"
+                                <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
                                     class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                                 <div
                                     class="absolute top-6 right-6 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg">
@@ -156,7 +156,7 @@
                         <div
                             class="card group bg-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-500 overflow-hidden border border-slate-200">
                             <div class="relative overflow-hidden h-72">
-                                <img src="{{ $dish->image }}" alt="{{ $dish->name }}"
+                                <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
                                     class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                                 <div
                                     class="absolute top-6 right-6 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg">

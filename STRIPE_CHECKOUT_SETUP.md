@@ -17,9 +17,7 @@ Your Stripe payment gateway is now configured to redirect users to Stripe's host
 ## Configuration Required
 
 ### .env File (Already Set)
-```dotenv
-STRIPE_KEY=pk_test_51T16t9JGT7xkefV4jeJkKO3as6BIvA3MNRvIhIrhEveFIoGkeBfIRPzTQzurIRHe1MluZ1cHMdTZAK4kfQfnjPsm00Ljtj5MYx
-STRIPE_SECRET=sk_test_51T16t9JGT7xkefV44598pp5W9pyzCfDJpmdzEZyMQLiR7Sp66aq7UdcfJrJeobLqzHUvesE2156FJoOU2pkfDekp00PxnSKohn
+
 ```
 
 ### Test Card

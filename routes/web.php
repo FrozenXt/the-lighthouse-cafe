@@ -43,6 +43,8 @@ Route::get('/order', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/cart', [OrderController::class, 'cart'])->name('orders.cart');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/orders/checkout/success/{order_id}', [OrderController::class, 'checkoutSuccess'])->name('orders.checkout.success');
+Route::get('/orders/checkout/cancel/{order_id}', [OrderController::class, 'checkoutCancel'])->name('orders.checkout.cancel');
 Route::get('/orders/{id}/success', [OrderController::class, 'success'])->name('orders.success');
 Route::get('/orders/track/{orderNumber}', [OrderController::class, 'track'])->name('orders.track');
 

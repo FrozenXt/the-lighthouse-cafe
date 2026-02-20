@@ -48,6 +48,42 @@ class DashboardController extends Controller
         return view('admin.orders', compact('orders'));
     }
 
+    public function showOrder(Order $order)
+    {
+        $order->load('items');
+
+        // Calculate subtotal
+        $subtotal = $order->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        return response()->json([
+            'id' => $order->id,
+            'order_number' => $order->order_number,
+            'customer_name' => $order->customer_name,
+            'customer_email' => $order->customer_email,
+            'customer_phone' => $order->customer_phone,
+            'delivery_address' => $order->delivery_address,
+            'special_instructions' => $order->special_instructions,
+            'status' => $order->status,
+            'payment_status' => $order->payment_status,
+            'payment_method' => $order->payment_method,
+            'total' => $order->total,
+            'subtotal' => $subtotal,
+            'delivery_fee' => $order->delivery_fee ?? 5.00,
+            'created_at' => $order->created_at,
+            'items' => $order->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'dish_name' => $item->dish_name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity
+                ];
+            })->toArray()
+        ]);
+    }
+
     public function updateOrderStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
@@ -63,5 +99,16 @@ class DashboardController extends Controller
         }
 
         return back()->with('success', 'Order status updated successfully!');
+    }
+
+    public function deleteOrder(Order $order)
+    {
+        // Delete associated order items first
+        $order->items()->delete();
+
+        // Delete the order
+        $order->delete();
+
+        return back()->with('success', 'Order deleted successfully!');
     }
 }

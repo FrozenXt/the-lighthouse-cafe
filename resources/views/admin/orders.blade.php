@@ -124,10 +124,22 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <button onclick="viewOrderModal({{ $order->id }})"
-                                        class="text-amber-600 hover:text-amber-700 font-semibold text-sm">
-                                        View Full Details
-                                    </button>
+                                    <div class="flex gap-2">
+                                        <button onclick="viewOrderModal({{ $order->id }})"
+                                            class="text-amber-600 hover:text-amber-700 font-semibold text-sm bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded transition">
+                                            View
+                                        </button>
+                                        <form action="{{ route('admin.orders.delete', $order) }}" method="POST"
+                                            style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to delete this order? This action cannot be undone.')"
+                                                class="text-red-600 hover:text-red-700 font-semibold text-sm bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             <!-- Order Details Row (Hidden by default) -->
@@ -186,6 +198,23 @@
         </div>
     </div>
 
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-slate-200 p-6 flex justify-between items-center">
+                <h2 class="text-2xl font-serif font-bold text-slate-800">Order Details</h2>
+                <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6" id="modalBody">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleOrderDetails(id) {
             const element = document.getElementById(id);
@@ -195,5 +224,124 @@
                 element.classList.add('hidden');
             }
         }
+
+        function viewOrderModal(orderId) {
+            const modal = document.getElementById('orderModal');
+            const modalBody = document.getElementById('modalBody');
+
+            // Fetch order details
+            fetch(`/admin/orders/${orderId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Populate modal with order data
+                    let itemsHTML = '';
+                    data.items.forEach(item => {
+                        itemsHTML += `
+                        <div class="flex justify-between items-start py-3 border-b border-slate-200">
+                            <div>
+                                <p class="font-semibold text-slate-800">${item.quantity}x ${item.dish_name}</p>
+                                <p class="text-sm text-slate-600">@ $${parseFloat(item.price).toFixed(2)}</p>
+                            </div>
+                            <span class="font-bold text-amber-600">$${parseFloat(item.subtotal).toFixed(2)}</span>
+                        </div>
+                    `;
+                    });
+
+                    const statusColor = {
+                        'pending': 'bg-yellow-100 text-yellow-800',
+                        'confirmed': 'bg-blue-100 text-blue-800',
+                        'preparing': 'bg-purple-100 text-purple-800',
+                        'ready': 'bg-green-100 text-green-800',
+                        'delivered': 'bg-green-100 text-green-800',
+                        'cancelled': 'bg-red-100 text-red-800'
+                    };
+
+                    const paymentStatusColor = data.payment_status === 'paid' ? 'bg-green-100 text-green-800' :
+                        'bg-yellow-100 text-yellow-800';
+
+                    modalBody.innerHTML = `
+                    <div class="bg-slate-50 p-6 rounded-lg mb-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-slate-600 mb-1">Order Number</p>
+                                <p class="font-bold text-slate-800">${data.order_number}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-600 mb-1">Date</p>
+                                <p class="font-bold text-slate-800">${new Date(data.created_at).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-600 mb-1">Status</p>
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${statusColor[data.status] || 'bg-gray-100'}">${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-600 mb-1">Payment Status</p>
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${paymentStatusColor}">${data.payment_status.charAt(0).toUpperCase() + data.payment_status.slice(1)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold text-slate-800 mb-4">Customer Information</h4>
+                        <div class="space-y-2">
+                            <p><strong class="text-slate-700">Name:</strong> <span class="text-slate-600">${data.customer_name}</span></p>
+                            <p><strong class="text-slate-700">Email:</strong> <span class="text-slate-600">${data.customer_email}</span></p>
+                            <p><strong class="text-slate-700">Phone:</strong> <span class="text-slate-600">${data.customer_phone}</span></p>
+                            <p><strong class="text-slate-700">Delivery Address:</strong> <span class="text-slate-600">${data.delivery_address}</span></p>
+                            ${data.special_instructions ? `<p><strong class="text-slate-700">Special Instructions:</strong> <span class="text-slate-600">${data.special_instructions}</span></p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h4 class="font-bold text-slate-800 mb-4">Order Items</h4>
+                        <div>
+                            ${itemsHTML}
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700">Subtotal:</span>
+                            <span class="font-semibold">$${parseFloat(data.subtotal || '0').toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700">Tax (8%):</span>
+                            <span class="font-semibold">$${(parseFloat(data.subtotal || '0') * 0.08).toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between mb-3 pb-3 border-b border-slate-300">
+                            <span class="text-slate-700">Delivery Fee:</span>
+                            <span class="font-semibold">$${parseFloat(data.delivery_fee || '5.00').toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold">
+                            <span class="text-slate-800">Total:</span>
+                            <span class="text-amber-600">$${parseFloat(data.total).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+
+                    modal.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load order details');
+                });
+        }
+
+        function closeOrderModal() {
+            const modal = document.getElementById('orderModal');
+            modal.classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('orderModal');
+            if (event.target === modal) {
+                closeOrderModal();
+            }
+        });
     </script>
 @endsection

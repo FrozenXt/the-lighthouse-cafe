@@ -159,17 +159,15 @@
                     payment_method: 'cash',
                     special_instructions: ''
                 },
+                submitting: false,
 
                 get subtotal() {
                     return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 },
-
                 get tax() {
                     return this.subtotal * 0.08;
                 },
-
                 deliveryFee: 5.00,
-
                 get grandTotal() {
                     return this.subtotal + this.tax + this.deliveryFee;
                 },
@@ -179,14 +177,12 @@
                         alert('Your cart is empty!');
                         return;
                     }
-
-                    // Validate form
                     if (!this.formData.customer_name || !this.formData.customer_email || !this.formData
                         .customer_phone || !this.formData.delivery_address) {
                         alert('Please fill in all required fields!');
                         return;
                     }
-
+                    this.submitting = true;
                     const formData = new FormData();
                     formData.append('customer_name', this.formData.customer_name);
                     formData.append('customer_email', this.formData.customer_email);
@@ -203,19 +199,38 @@
                             method: 'POST',
                             body: formData
                         });
-
                         const data = await response.json();
+                        console.log('Order response:', {
+                            status: response.status,
+                            ok: response.ok,
+                            data
+                        });
 
                         if (response.ok && data.success) {
-                            localStorage.removeItem('cart');
-                            window.location.href = data.redirect;
+                            console.log('Order creation successful', data);
+                            if ((this.formData.payment_method === 'online' || this.formData.payment_method ===
+                                    'card') && data.checkout_url) {
+                                // Stripe Checkout redirect
+                                console.log('Redirecting to Stripe Checkout...', data.checkout_url);
+                                localStorage.removeItem('cart');
+                                window.location.href = data.checkout_url;
+                            } else {
+                                console.log('Non-Stripe payment, redirecting');
+                                localStorage.removeItem('cart');
+                                window.location.href = data.redirect;
+                            }
                         } else {
-                            alert(data.message || 'Failed to place order. Please try again.');
-                            console.error('Order error:', data);
+                            const errorMsg = data.message || 'Failed to place order. Please try again.';
+                            alert(errorMsg);
+                            console.error('Order error:', data, errorMsg);
                         }
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
+                        console.error('Fetch error:', error);
+                        alert(
+                            'An error occurred while placing your order. Please check your internet connection and try again.'
+                            );
+                    } finally {
+                        this.submitting = false;
                     }
                 }
             }

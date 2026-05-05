@@ -11,7 +11,7 @@ class HomeController extends Controller
     {
         $featuredDay = Dish::where('featured_type', 'day')->get();
         $featuredWeek = Dish::where('featured_type', 'week')->get();
-        
+
         return view('home', compact('featuredDay', 'featuredWeek'));
     }
 }

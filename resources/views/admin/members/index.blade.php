@@ -1,4 +1,4 @@
-<!-- resources/views/admin/members/index.blade.php -->
+
 @extends('admin.layouts.app')
 
 @section('title', 'Members Management')

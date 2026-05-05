@@ -245,7 +245,7 @@
                     Become a Member
                 </a>
                 <a href="{{ route('reservations.create') }}"
-                    class="bg-transparent border-2 border-amber-400 hover:bg-amber-400 hover:text-slate-900 font-bold py-5 px-12 rounded-lg text-xl shadow-2xl transform hover:scale-105 transition-all duration-300">
+                    class="bg-transparent border-2 border-amber-400 hover:bg-amber-400 hover:text-slate-100 font-bold py-5 px-12 rounded-lg text-xl shadow-2xl transform hover:scale-105 transition-all duration-300">
                     Reserve a Table
                 </a>
             </div>

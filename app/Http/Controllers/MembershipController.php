@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Member;
@@ -26,6 +27,6 @@ class MembershipController extends Controller
         Member::create($validated);
 
         return redirect()->route('membership')
-                       ->with('success', 'Welcome to The Lighthouse Cafe family!');
+            ->with('success', 'Welcome to The Lighthouse Cafe family!');
     }
 }

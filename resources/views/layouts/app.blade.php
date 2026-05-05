@@ -38,15 +38,15 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{{ route('home') }}"
                         class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Home</a>
-                    <a href="{{ route('menu') }}"
-                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Menu</a>
+                    {{-- <a href="{{ route('menu') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Menu</a> --}}
                     <a href="{{ route('orders.index') }}"
                         class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Order
                         Online</a>
                     <a href="{{ route('reservations.create') }}"
                         class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Reservations</a>
-                    <a href="{{ route('membership') }}"
-                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Membership</a>
+                    {{-- <a href="{{ route('membership') }}"
+                        class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">Membership</a> --}}
                     <a href="{{ route('about') }}"
                         class="nav-link text-slate-200 hover:text-amber-400 font-medium transition-all duration-300">About</a>
                     <a href="{{ route('contact') }}"

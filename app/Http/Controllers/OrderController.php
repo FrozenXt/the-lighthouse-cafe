@@ -10,13 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use Stripe\Checkout\Session as StripeSession;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        // Get active categories with their available dishes
         $dishes = Category::where('is_active', true)
             ->orderBy('display_order')
             ->with(['dishes' => function ($query) {
@@ -40,185 +39,251 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email',
-            'customer_phone' => 'required|string',
-            'delivery_address' => 'required|string',
-            'payment_method' => 'required|in:cash,card,online',
-            'special_instructions' => 'nullable|string',
-            'cart' => 'required|json'
-        ]);
-
-        DB::beginTransaction();
         try {
-            Log::info('Order creation started', ['payment_method' => $validated['payment_method']]);
+            Log::info('=== Order Store Request Started ===', [
+                'method'         => $request->method(),
+                'payment_method' => $request->input('payment_method'),
+                'customer_email' => $request->input('customer_email'),
+            ]);
+
+            $validated = $request->validate([
+                'customer_name'        => 'required|string|max:255',
+                'customer_email'       => 'required|email',
+                'customer_phone'       => 'required|string',
+                'delivery_address'     => 'required|string',
+                'payment_method'       => 'required|in:cash,card,online',
+                'special_instructions' => 'nullable|string',
+                'cart'                 => 'required|json',
+            ]);
 
             $cart = json_decode($validated['cart'], true);
 
             if (!is_array($cart) || empty($cart)) {
-                throw new \Exception('Cart is empty or invalid');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cart is empty or invalid',
+                ], 400);
             }
 
-            $subtotal = 0;
-            foreach ($cart as $item) {
-                $subtotal += $item['price'] * $item['quantity'];
-            }
-
-            $tax = $subtotal * 0.08; // 8% tax
+            // Calculate totals
+            $subtotal    = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+            $tax         = $subtotal * 0.08;
             $deliveryFee = 5.00;
-            $total = $subtotal + $tax + $deliveryFee;
+            $total       = $subtotal + $tax + $deliveryFee;
+
+            DB::beginTransaction();
 
             // Create order
             $order = Order::create([
-                'customer_name' => $validated['customer_name'],
-                'customer_email' => $validated['customer_email'],
-                'customer_phone' => $validated['customer_phone'],
-                'delivery_address' => $validated['delivery_address'],
-                'payment_method' => $validated['payment_method'],
-                'status' => 'pending',
-                'payment_status' => in_array($validated['payment_method'], ['online', 'card']) ? 'pending' : 'pending',
+                'customer_name'        => $validated['customer_name'],
+                'customer_email'       => $validated['customer_email'],
+                'customer_phone'       => $validated['customer_phone'],
+                'delivery_address'     => $validated['delivery_address'],
+                'payment_method'       => $validated['payment_method'],
+                'status'               => 'pending',
+                'payment_status'       => 'pending',
                 'special_instructions' => $validated['special_instructions'] ?? null,
-                'subtotal' => $subtotal,
-                'tax' => $tax,
-                'delivery_fee' => $deliveryFee,
-                'total' => $total,
+                'subtotal'             => $subtotal,
+                'tax'                  => $tax,
+                'delivery_fee'         => $deliveryFee,
+                'total'                => $total,
             ]);
-
-            Log::info('Order created', ['order_id' => $order->id, 'total' => $total]);
 
             // Create order items
             foreach ($cart as $item) {
                 OrderItem::create([
-                    'order_id' => $order->id,
-                    'dish_id' => $item['id'],
+                    'order_id'  => $order->id,
+                    'dish_id'   => $item['id'] ?? null,
                     'dish_name' => $item['name'],
-                    'price' => $item['price'],
-                    'quantity' => $item['quantity'],
-                    'subtotal' => $item['price'] * $item['quantity']
+                    'price'     => $item['price'],
+                    'quantity'  => $item['quantity'],
+                    'subtotal'  => $item['price'] * $item['quantity'],
                 ]);
             }
 
             DB::commit();
 
-            // If payment method is cash, redirect to success
+            Log::info('Order created', ['order_id' => $order->id, 'payment_method' => $validated['payment_method']]);
+
+            // ── Cash: redirect straight to success ──────────────────────────
             if ($validated['payment_method'] === 'cash') {
-                Log::info('Cash payment, skipping Stripe', ['order_id' => $order->id]);
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Order placed successfully!',
-                    'redirect' => route('orders.success', $order->id)
+                    'success'  => true,
+                    'message'  => 'Order placed successfully!',
+                    'redirect' => route('orders.success', $order->id),
                 ]);
             }
 
-            // For card/online payment, create Stripe Checkout session
-            if (empty(config('stripe.secret')) || config('stripe.secret') === 'your_stripe_secret_key') {
-                throw new \Exception('Stripe is not properly configured. Please set STRIPE_SECRET in your .env file.');
+            // ── Card / Online: create Stripe Checkout Session ────────────────
+            if (empty(config('stripe.secret'))) {
+                Log::error('Stripe secret key not configured');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment gateway is not properly configured.',
+                ], 500);
             }
 
-            try {
-                Stripe::setApiKey(config('stripe.secret'));
+            Stripe::setApiKey(config('stripe.secret'));
 
-                // Build line items for Stripe
-                $lineItems = [];
+            // Build line items
+            $lineItems = [];
 
-                // Add each cart item
-                foreach ($cart as $item) {
-                    $lineItems[] = [
-                        'price_data' => [
-                            'currency' => 'usd',
-                            'product_data' => [
-                                'name' => $item['name'],
-                                'description' => 'The Lighthouse Cafe'
-                            ],
-                            'unit_amount' => intval($item['price'] * 100),
-                        ],
-                        'quantity' => intval($item['quantity']),
-                    ];
-                }
-
-                // Add tax line item
+            foreach ($cart as $item) {
                 $lineItems[] = [
                     'price_data' => [
-                        'currency' => 'usd',
+                        'currency'     => 'usd',
                         'product_data' => [
-                            'name' => 'Tax (8%)',
+                            'name'        => trim($item['name']),
+                            'description' => 'The Lighthouse Cafe',
                         ],
-                        'unit_amount' => intval($tax * 100),
+                        'unit_amount' => intval(round($item['price'] * 100)),
                     ],
-                    'quantity' => 1,
+                    'quantity' => intval($item['quantity']),
                 ];
-
-                // Add delivery fee
-                $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => 'Delivery Fee',
-                        ],
-                        'unit_amount' => intval($deliveryFee * 100),
-                    ],
-                    'quantity' => 1,
-                ];
-
-                Log::info('Creating Stripe session', ['order_id' => $order->id, 'items_count' => count($lineItems), 'total_cents' => intval($total * 100)]);
-
-                $session = Session::create([
-                    'customer_email' => $validated['customer_email'],
-                    'payment_method_types' => ['card'],
-                    'line_items' => $lineItems,
-                    'mode' => 'payment',
-                    'success_url' => route('orders.checkout.success', ['order_id' => $order->id], true),
-                    'cancel_url' => route('orders.checkout.cancel', ['order_id' => $order->id], true),
-                    'metadata' => [
-                        'order_id' => $order->id,
-                        'customer_name' => $validated['customer_name'],
-                        'customer_phone' => $validated['customer_phone'],
-                        'delivery_address' => $validated['delivery_address'],
-                    ]
-                ]);
-
-                Log::info('Stripe session created successfully', [
-                    'session_id' => $session->id,
-                    'order_id' => $order->id,
-                    'checkout_url' => $session->url
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'checkout_url' => $session->url,
-                    'order_id' => $order->id,
-                ]);
-            } catch (\Exception $stripeError) {
-                Log::error('Stripe API error', [
-                    'error' => $stripeError->getMessage(),
-                    'code' => $stripeError->getCode(),
-                    'order_id' => $order->id
-                ]);
-                throw new \Exception('Stripe payment gateway error: ' . $stripeError->getMessage());
             }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Order creation error: ' . $e->getMessage(), ['exception' => $e]);
+
+            $lineItems[] = [
+                'price_data' => [
+                    'currency'     => 'usd',
+                    'product_data' => ['name' => 'Tax (8%)', 'description' => 'Sales Tax'],
+                    'unit_amount'  => intval(round($tax * 100)),
+                ],
+                'quantity' => 1,
+            ];
+
+            $lineItems[] = [
+                'price_data' => [
+                    'currency'     => 'usd',
+                    'product_data' => ['name' => 'Delivery Fee', 'description' => 'Standard delivery'],
+                    'unit_amount'  => intval(round($deliveryFee * 100)),
+                ],
+                'quantity' => 1,
+            ];
+
+            $stripeSession = StripeSession::create([
+                'payment_method_types' => ['card'],
+                'line_items'           => $lineItems,
+                'mode'                 => 'payment',
+                'customer_email'       => $validated['customer_email'],
+                'success_url'          => route('orders.checkout.success', ['order_id' => $order->id], true)
+                    . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url'           => route('orders.checkout', [], true),
+                'client_reference_id'  => (string) $order->id,
+                'metadata'             => [
+                    'order_id'         => (string) $order->id,
+                    'customer_name'    => $validated['customer_name'],
+                    'customer_phone'   => $validated['customer_phone'],
+                    'delivery_address' => $validated['delivery_address'],
+                ],
+                'expires_at' => time() + (30 * 60),
+            ]);
+
+            Log::info('Stripe session created', [
+                'session_id'   => $stripeSession->id,
+                'order_id'     => $order->id,
+                'checkout_url' => $stripeSession->url,
+            ]);
+
+            // Return the Stripe hosted checkout URL for the frontend to redirect to
+            return response()->json([
+                'success'      => true,
+                'message'      => 'Redirecting to payment...',
+                'checkout_url' => $stripeSession->url,
+                'order_id'     => $order->id,
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error', ['errors' => $e->errors()]);
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Validation error: ' . implode(', ', collect($e->errors())->flatten()->all()),
+            ], 422);
+        } catch (\Stripe\Exception\AuthenticationException $e) {
+            Log::error('Stripe Auth Error', ['error' => $e->getMessage()]);
+            $this->rollbackIfInTransaction();
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment service authentication failed. Please contact support.',
+            ], 401);
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
+            Log::error('Stripe Invalid Request', ['error' => $e->getMessage()]);
+            $this->rollbackIfInTransaction();
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment configuration error: ' . $e->getMessage(),
             ], 400);
+        } catch (\Stripe\Exception\RateLimitException $e) {
+            Log::error('Stripe Rate Limit', ['error' => $e->getMessage()]);
+            $this->rollbackIfInTransaction();
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment service is temporarily busy. Please try again in a moment.',
+            ], 429);
+        } catch (\Stripe\Exception\ApiConnectionException $e) {
+            Log::error('Stripe Connection Error', ['error' => $e->getMessage()]);
+            $this->rollbackIfInTransaction();
+            return response()->json([
+                'success' => false,
+                'message' => 'Network error connecting to payment service. Please try again.',
+            ], 503);
+        } catch (\Exception $e) {
+            Log::error('Order/Stripe error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            $this->rollbackIfInTransaction();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process order: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
     public function checkoutSuccess($orderId)
     {
         try {
-            $order = Order::findOrFail($orderId);
+            $order     = Order::findOrFail($orderId);
+            $sessionId = request()->query('session_id');
+
+            if ($sessionId) {
+                Log::info('Verifying Stripe session', ['order_id' => $orderId, 'session_id' => $sessionId]);
+
+                try {
+                    Stripe::setApiKey(config('stripe.secret'));
+                    $stripeSession = StripeSession::retrieve($sessionId);
+
+                    Log::info('Stripe session retrieved', [
+                        'order_id'       => $orderId,
+                        'payment_status' => $stripeSession->payment_status,
+                    ]);
+
+                    if ($stripeSession->payment_status !== 'paid') {
+                        Log::warning('Stripe payment not successful', [
+                            'order_id' => $orderId,
+                            'status'   => $stripeSession->payment_status,
+                        ]);
+                        return redirect()->route('orders.checkout')
+                            ->with('error', 'Payment was not successfully processed. Please try again.');
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error retrieving Stripe session', [
+                        'order_id'   => $orderId,
+                        'session_id' => $sessionId,
+                        'error'      => $e->getMessage(),
+                    ]);
+                    // Webhook will handle confirmation if session retrieval fails
+                }
+            }
+
             $order->update([
                 'payment_status' => 'paid',
-                'status' => 'confirmed'
+                'status'         => 'confirmed',
             ]);
+
             Log::info('Order payment confirmed', ['order_id' => $orderId]);
+
             return view('orders.success', compact('order'));
         } catch (\Exception $e) {
-            Log::error('Checkout success error: ' . $e->getMessage());
+            Log::error('Checkout success error', ['order_id' => $orderId, 'error' => $e->getMessage()]);
             abort(404);
         }
     }
@@ -226,13 +291,14 @@ class OrderController extends Controller
     public function checkoutCancel($orderId)
     {
         try {
-            $order = Order::findOrFail($orderId);
-            Log::info('Checkout cancelled by user', ['order_id' => $orderId]);
-            return redirect()->route('orders.checkout')->with('error', 'Payment was cancelled. Your order has been saved. You can continue from your cart.');
+            Order::findOrFail($orderId);
+            Log::info('Checkout cancelled', ['order_id' => $orderId]);
         } catch (\Exception $e) {
             Log::error('Checkout cancel error: ' . $e->getMessage());
-            return redirect()->route('orders.index');
         }
+
+        return redirect()->route('orders.checkout')
+            ->with('error', 'Payment was cancelled. Your order has been saved — you can complete payment from your cart.');
     }
 
     public function success($id)
@@ -245,5 +311,14 @@ class OrderController extends Controller
     {
         $order = Order::with('items')->where('order_number', $orderNumber)->firstOrFail();
         return view('orders.track', compact('order'));
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    private function rollbackIfInTransaction(): void
+    {
+        if (DB::inTransaction()) {
+            DB::rollBack();
+        }
     }
 }

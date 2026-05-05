@@ -1,4 +1,4 @@
-<!-- resources/views/admin/reservations/index.blade.php -->
+
 @extends('admin.layouts.app')
 
 @section('title', 'Reservations Management')

@@ -1,4 +1,4 @@
-<!-- resources/views/admin/orders.blade.php -->
+
 @extends('admin.layouts.app')
 
 @section('title', 'Manage Orders')

@@ -5,18 +5,22 @@
 @section('content')
     <!-- Hero Section -->
     <div class="relative h-96 bg-cover bg-center overflow-hidden"
-        style="background-image: url('https://images.unsplash.com/photo-1552168324-d612d080c3fd?w=1920&h=400&fit=crop');">
-        <div class="absolute inset-0 bg-linear-to-br from-black/60 via-teal-900/50 to-blue-900/60"></div>
-        <div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
-        <div class="relative h-full flex items-center">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white text-center w-full">
-                <h1 class="text-5xl md:text-6xl font-serif font-extrabold mb-4 drop-shadow-2xl">About The Lighthouse Cafe
-                </h1>
-                <p class="text-xl md:text-2xl text-gray-100 drop-shadow-lg">Where culinary excellence meets warm hospitality
-                </p>
-            </div>
+    style="background-image: url('{{ asset('images/first.jpg') }}');">
+
+    <div class="absolute inset-0 bg-linear-to-br from-black/60 via-teal-900/50 to-blue-900/60"></div>
+    <div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
+
+    <div class="relative h-full flex items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white text-center w-full">
+            <h1 class="text-5xl md:text-6xl font-serif font-extrabold mb-4 drop-shadow-2xl">
+                About The Lighthouse Cafe
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-100 drop-shadow-lg">
+                Where culinary excellence meets warm hospitality
+            </p>
         </div>
     </div>
+</div>
 
     <!-- Main Content -->
     <div class="bg-white">
@@ -42,8 +46,7 @@
                         </p>
                     </div>
                     <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&h=500&fit=crop"
-                            alt="The Lighthouse Cafe Interior" class="rounded-xl shadow-2xl">
+                       <img src="{{ asset('images/about.png') }}">
                         <div
                             class="absolute -bottom-6 -right-6 bg-linear-to-br from-yellow-400 to-orange-500 rounded-xl p-8 text-white shadow-xl">
                             <p class="text-5xl font-bold">10+</p>

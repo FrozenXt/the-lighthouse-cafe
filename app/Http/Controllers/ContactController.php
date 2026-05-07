@@ -3,31 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+use App\Models\Contact;
 
 class ContactController extends Controller
 {
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'required|email',
             'phone' => 'nullable|string|max:20',
             'subject' => 'required|string|max:255',
-            'message' => 'required|string|min:10',
+            'message' => 'required|string',
         ]);
 
-        // Here you can:
-        // 1. Send email to admin
-        // 2. Save to database
-        // 3. Send confirmation email to user
+        Contact::create($request->all());
 
-        // For now, we'll just log it and redirect with success
-        // In a real scenario, you'd send an email like:
-        // Mail::to(config('mail.from.address'))
-        //     ->send(new ContactFormMail($validated));
-
-        return redirect()->route('contact')
-            ->with('success', 'Thank you for your message! We\'ll get back to you soon.');
+        return back()->with('success', 'Message sent successfully!');
     }
 }

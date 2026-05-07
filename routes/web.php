@@ -14,20 +14,20 @@ use App\Http\Controllers\Admin\DishController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController; // ✅ aliased correctly
 
 // Stripe Webhooks (No CSRF protection)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
     ->name('stripe.webhook');
 
-// Storage Files - Serve uploaded images and files (Must be first to avoid conflicts)
+// Storage Files
 Route::get('/storage/{path}', function ($path) {
     $storagePath = storage_path('app/public/' . $path);
-
     if (!file_exists($storagePath)) {
         abort(404);
     }
-
     return response()->file($storagePath);
 })->where('path', '.*')->name('storage.file');
 
@@ -44,7 +44,7 @@ Route::post('/membership/register', [MembershipController::class, 'register'])->
 Route::get('/reservations', [ReservationController::class, 'create'])->name('reservations.create');
 Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 
-// Orders
+// Orders (Frontend)
 Route::get('/order', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/cart', [OrderController::class, 'cart'])->name('orders.cart');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
@@ -63,28 +63,32 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
+
     // Login
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
 
     // Protected Admin Routes
     Route::middleware('auth:admin')->group(function () {
+
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Orders Management
-        Route::get('/orders', [DashboardController::class, 'orders'])->name('orders');
-        Route::get('/orders/{order}', [DashboardController::class, 'showOrder'])->name('orders.show');
-        Route::post('/orders/{order}/status', [DashboardController::class, 'updateOrderStatus'])->name('orders.update-status');
-        Route::delete('/orders/{order}', [DashboardController::class, 'deleteOrder'])->name('orders.delete');
+        // ✅ Orders Management — using AdminOrderController (NOT frontend OrderController)
+        Route::resource('orders', AdminOrderController::class)
+            ->except(['create', 'store']);
+        Route::post('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+            ->name('orders.update-status');
 
         // Dishes/Menu Management
         Route::resource('dishes', DishController::class);
-        Route::post('/dishes/{dish}/toggle-availability', [DishController::class, 'toggleAvailability'])->name('dishes.toggle-availability');
+        Route::post('/dishes/{dish}/toggle-availability', [DishController::class, 'toggleAvailability'])
+            ->name('dishes.toggle-availability');
 
         // Categories Management
         Route::resource('categories', CategoryController::class);
-        Route::post('/categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active');
+        Route::post('/categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])
+            ->name('categories.toggle-active');
 
         // Reservations Management
         Route::get('/reservations', [AdminReservationController::class, 'index'])->name('reservations.index');
@@ -97,6 +101,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/members/{member}', [MemberController::class, 'show'])->name('members.show');
         Route::put('/members/{member}', [MemberController::class, 'update'])->name('members.update');
         Route::delete('/members/{member}', [MemberController::class, 'destroy'])->name('members.delete');
+
+        // Contacts
+        Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts.index');
 
         // Logout
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');

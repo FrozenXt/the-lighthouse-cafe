@@ -20,7 +20,8 @@
                     </svg>
                     Refresh
                 </button>
-                <a href="{{ route('admin.orders') }}"
+                {{-- ✅ Correct --}}
+<a href="{{ route('admin.orders.index') }}"
                     class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-6 py-2 rounded-lg font-semibold transition">
                     View All Orders
                 </a>
@@ -115,7 +116,8 @@
                         <h2 class="text-2xl font-serif font-bold">Recent Orders</h2>
                         <p class="text-slate-300 text-sm mt-1">Latest customer orders</p>
                     </div>
-                    <a href="{{ route('admin.orders') }}"
+                  {{-- ✅ Correct --}}
+<a href="{{ route('admin.orders.index') }}"
                         class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-semibold transition text-sm">
                         View All
                     </a>
@@ -235,7 +237,8 @@
             <div class="bg-white rounded-xl shadow-lg p-6">
                 <h3 class="text-lg font-serif font-bold text-slate-800 mb-4">Quick Actions</h3>
                 <div class="space-y-3">
-                    <a href="{{ route('admin.orders') }}"
+                   {{-- ✅ Correct --}}
+<a href="{{ route('admin.orders.index') }}"
                         class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition">
                         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

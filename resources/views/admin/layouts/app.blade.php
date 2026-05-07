@@ -49,7 +49,9 @@
                 </div>
 
                 <!-- Orders -->
-                <a href="{{ route('admin.orders') }}"
+              {{-- ❌ Wrong --}}
+               {{-- ✅ Correct --}}
+<a href="{{ route('admin.orders.index') }}"
                     class="flex items-center px-4 py-3 mb-2 rounded-lg transition {{ request()->routeIs('admin.orders*') ? 'bg-amber-500 text-slate-900' : 'hover:bg-slate-700' }}">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -87,6 +89,20 @@
                     </svg>
                     <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Reservations</span>
                 </a>
+
+             <a href="{{ route('admin.contacts.index') }}"
+   class="flex items-center px-4 py-3 mb-2 rounded-lg transition
+   {{ request()->routeIs('admin.contacts*') ? 'bg-amber-500 text-slate-900' : 'hover:bg-slate-700 text-slate-200' }}">
+
+    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 5h18M3 10h18M3 15h18M3 20h18" />
+    </svg>
+
+    <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">
+        Contacts
+    </span>
+</a>
 
                 <!-- Members -->
                 <a href="{{ route('admin.members.index') }}"
@@ -181,7 +197,8 @@
                 <nav class="space-y-2">
                     <a href="{{ route('admin.dashboard') }}"
                         class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'bg-amber-500 text-white' : 'hover:bg-slate-100' }}">Dashboard</a>
-                    <a href="{{ route('admin.orders') }}"
+                   {{-- ✅ Correct --}}
+<a href="{{ route('admin.orders.index') }}"
                         class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.orders*') ? 'bg-amber-500 text-white' : 'hover:bg-slate-100' }}">Orders</a>
                     <a href="{{ route('admin.dishes.index') }}"
                         class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.dishes*') ? 'bg-amber-500 text-white' : 'hover:bg-slate-100' }}">Menu

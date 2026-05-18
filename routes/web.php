@@ -11,6 +11,7 @@ use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DishController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\Admin\MemberController;
@@ -102,8 +103,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/members/{member}', [MemberController::class, 'update'])->name('members.update');
         Route::delete('/members/{member}', [MemberController::class, 'destroy'])->name('members.delete');
 
-        // Contacts
-        Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts.index');
+        Route::resource('contacts', AdminContactController::class);
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
 
         // Logout
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Dish;
 use App\Models\Category;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -55,6 +56,17 @@ class OrderController extends Controller
                 'special_instructions' => 'nullable|string',
                 'cart'                 => 'required|json',
             ]);
+            $settings = \App\Models\SiteSetting::pluck('value', 'key');
+            $restaurantLat = $settings['restaurant_lat'] ?? null;
+            $restaurantLng = $settings['restaurant_lng'] ?? null;
+            $maxDistance   = $settings['delivery_radius'] ?? 2; // fallback 2km
+
+            if (!$restaurantLat || !$restaurantLng) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Restaurant location is not configured.',
+                ], 500);
+            }
 
             $cart = json_decode($validated['cart'], true);
 
@@ -66,10 +78,30 @@ class OrderController extends Controller
             }
 
             // Calculate totals
-            $subtotal    = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-            $tax         = $subtotal * 0.08;
-            $deliveryFee = 5.00;
-            $total       = $subtotal + $tax + $deliveryFee;
+            $settings = SiteSetting::pluck('value', 'key');
+
+            $taxRate = $settings['tax_rate'] ?? 8;
+            $deliveryFee = $settings['delivery_fee'] ?? 5;
+            $maxDistance = $settings['delivery_radius'] ?? 2;
+
+            $subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+
+            $tax = $subtotal * ($taxRate / 100);
+            $total = $subtotal + $tax + $deliveryFee;
+            $distance = calculateDistance(
+                $restaurantLat,
+                $restaurantLng,
+                $request->latitude,
+                $request->longitude
+            );
+            if ($distance > $maxDistance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Delivery not available in your area. You are too far from the restaurant.',
+                    'distance' => round($distance, 2),
+                    'max_distance' => $maxDistance,
+                ], 400);
+            }
 
             DB::beginTransaction();
 
@@ -145,7 +177,7 @@ class OrderController extends Controller
             $lineItems[] = [
                 'price_data' => [
                     'currency'     => 'usd',
-                    'product_data' => ['name' => 'Tax (8%)', 'description' => 'Sales Tax'],
+                    'product_data' => ['name' => 'Tax (' . $taxRate . '%)', 'description' => 'Sales Tax'],
                     'unit_amount'  => intval(round($tax * 100)),
                 ],
                 'quantity' => 1,
@@ -153,9 +185,12 @@ class OrderController extends Controller
 
             $lineItems[] = [
                 'price_data' => [
-                    'currency'     => 'usd',
-                    'product_data' => ['name' => 'Delivery Fee', 'description' => 'Standard delivery'],
-                    'unit_amount'  => intval(round($deliveryFee * 100)),
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => 'Delivery Fee',
+                        'description' => 'Standard delivery charge',
+                    ],
+                    'unit_amount' => intval(round($deliveryFee * 100)),
                 ],
                 'quantity' => 1,
             ];

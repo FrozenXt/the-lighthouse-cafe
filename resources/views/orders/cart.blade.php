@@ -130,10 +130,13 @@
                                             <span>Subtotal (<span x-text="totalItems"></span> items):</span>
                                             <span class="font-semibold">$<span x-text="subtotal.toFixed(2)"></span></span>
                                         </div>
-                                        <div class="flex justify-between text-slate-700">
-                                            <span>Tax (8%):</span>
-                                            <span class="font-semibold">$<span x-text="tax.toFixed(2)"></span></span>
-                                        </div>
+                                       <div class="flex justify-between text-slate-700">
+    <span>Tax ({{ site_setting('tax_rate', 8) }}%):</span>
+
+    <span class="font-semibold">
+        $<span x-text="tax.toFixed(2)"></span>
+    </span>
+</div>
                                         <div class="flex justify-between text-slate-700">
                                             <span>Delivery Fee:</span>
                                             <span class="font-semibold">$<span
@@ -195,88 +198,108 @@
     </section>
 
     <script>
-        function cartPageData() {
-            return {
-                cart: JSON.parse(localStorage.getItem('cart') || '[]'),
+window.taxRate = {{ site_setting('tax_rate', 8) }};
+window.deliveryFeeValue = {{ site_setting('delivery_fee', 5) }};
 
-                get totalItems() {
-                    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-                },
+function cartPageData() {
+    return {
 
-                get subtotal() {
-                    return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                },
+        cart: JSON.parse(localStorage.getItem('cart') || '[]'),
 
-                get tax() {
-                    return this.subtotal * 0.08;
-                },
+        // ✅ settings from backend
+        taxRate: window.taxRate ?? 8,
+        baseDeliveryFee: window.deliveryFeeValue ?? 5,
 
-                deliveryFee: 5.00,
+        // ----------------------
+        // CART CALCULATIONS
+        // ----------------------
 
-                get grandTotal() {
-                    return this.subtotal + this.tax + this.deliveryFee;
-                },
+        get totalItems() {
+            return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        },
 
-                increaseQuantity(id) {
-                    const item = this.cart.find(item => item.id === id);
-                    if (item) {
-                        item.quantity++;
-                        this.saveCart();
-                    }
-                },
+        get subtotal() {
+            return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        },
 
-                decreaseQuantity(id) {
-                    const item = this.cart.find(item => item.id === id);
-                    if (item && item.quantity > 1) {
-                        item.quantity--;
-                        this.saveCart();
-                    }
-                },
+        get tax() {
+            return this.subtotal * (this.taxRate / 100);
+        },
 
-                updateQuantity(id, value) {
-                    const quantity = parseInt(value);
-                    if (quantity > 0 && quantity <= 99) {
-                        const item = this.cart.find(item => item.id === id);
-                        if (item) {
-                            item.quantity = quantity;
-                            this.saveCart();
-                        }
-                    }
-                },
+        get deliveryFee() {
+            return this.baseDeliveryFee;
+        },
 
-                removeFromCart(id) {
-                    if (confirm('Remove this item from cart?')) {
-                        this.cart = this.cart.filter(item => item.id !== id);
-                        this.saveCart();
-                        this.showNotification('Item removed from cart');
-                    }
-                },
+        get grandTotal() {
+            return this.subtotal + this.tax + this.deliveryFee;
+        },
 
-                clearCart() {
-                    if (confirm('Are you sure you want to clear your entire cart?')) {
-                        this.cart = [];
-                        this.saveCart();
-                        this.showNotification('Cart cleared');
-                    }
-                },
+        // ----------------------
+        // CART ACTIONS
+        // ----------------------
 
-                saveCart() {
-                    localStorage.setItem('cart', JSON.stringify(this.cart));
-                },
+        increaseQuantity(id) {
+            const item = this.cart.find(item => item.id === id);
+            if (item) {
+                item.quantity++;
+                this.saveCart();
+            }
+        },
 
-                showNotification(message) {
-                    const notification = document.createElement('div');
-                    notification.className =
-                        'fixed top-24 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                    notification.textContent = message;
-                    document.body.appendChild(notification);
-                    setTimeout(() => {
-                        notification.style.opacity = '0';
-                        notification.style.transition = 'opacity 0.3s';
-                        setTimeout(() => notification.remove(), 300);
-                    }, 2000);
+        decreaseQuantity(id) {
+            const item = this.cart.find(item => item.id === id);
+            if (item && item.quantity > 1) {
+                item.quantity--;
+                this.saveCart();
+            }
+        },
+
+        updateQuantity(id, value) {
+            const quantity = parseInt(value);
+            if (quantity > 0 && quantity <= 99) {
+                const item = this.cart.find(item => item.id === id);
+                if (item) {
+                    item.quantity = quantity;
+                    this.saveCart();
                 }
             }
+        },
+
+        removeFromCart(id) {
+            if (confirm('Remove this item from cart?')) {
+                this.cart = this.cart.filter(item => item.id !== id);
+                this.saveCart();
+                this.showNotification('Item removed from cart');
+            }
+        },
+
+        clearCart() {
+            if (confirm('Are you sure you want to clear your entire cart?')) {
+                this.cart = [];
+                this.saveCart();
+                this.showNotification('Cart cleared');
+            }
+        },
+
+        saveCart() {
+            localStorage.setItem('cart', JSON.stringify(this.cart));
+        },
+
+        showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className =
+                'fixed top-24 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
         }
-    </script>
+    }
+}
+</script>
 @endsection

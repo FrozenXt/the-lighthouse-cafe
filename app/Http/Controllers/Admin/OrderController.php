@@ -25,9 +25,8 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load('items');
+        $order->load('items.dish.category');
 
-        // If request wants JSON (used by old modal fetch, optional to keep)
         if (request()->wantsJson()) {
             return response()->json($order);
         }

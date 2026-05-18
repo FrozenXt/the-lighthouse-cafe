@@ -3,6 +3,8 @@
 @section('content')
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
 .checkout-page { font-family: 'DM Sans', sans-serif; }
@@ -114,6 +116,46 @@
 .fu1 { animation: fadeUp .4s ease .05s both; }
 .fu2 { animation: fadeUp .4s ease .12s both; }
 .fu3 { animation: fadeUp .4s ease .18s both; }
+
+/* ── Map picker styles ── */
+#delivery-map {
+    width: 100%;
+    height: 160px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    z-index: 1;
+    transition: border-color .2s;
+}
+#delivery-map:hover { border-color: #cbd5e1; }
+
+.map-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .72rem;
+    color: #b0bec5;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+.map-hint svg { flex-shrink: 0; width: 11px; height: 11px; }
+
+.locate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.32rem 0.7rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    background: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+}
+.locate-btn svg { width: 11px; height: 11px; }
+.locate-btn:hover { border-color: #f59e0b; color: #d97706; background: #fffbeb; }
 </style>
 
 <!-- Hero -->
@@ -160,10 +202,51 @@
                                 <label class="block text-sm font-semibold text-slate-600 mb-1.5">Phone Number <span class="text-red-400">*</span></label>
                                 <input type="tel" x-model="customerPhone" placeholder="+1 (555) 000-0000" class="field-input">
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-slate-600 mb-1.5">Delivery Address <span class="text-red-400">*</span></label>
-                                <textarea x-model="deliveryAddress" rows="3" placeholder="Enter your full delivery address" class="field-input resize-none"></textarea>
+
+                            {{-- ── Delivery location picker ── --}}
+                            <div class="md:col-span-2"
+                                 x-data="checkoutLocation()"
+                                 x-init="init()">
+
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-sm font-semibold text-slate-600">
+                                        Delivery Location <span class="text-red-400">*</span>
+                                    </label>
+                                    <button type="button" class="locate-btn" @click="detectLocation()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                                        </svg>
+                                        Use my location
+                                    </button>
+                                </div>
+
+                                <!-- Map -->
+                                <div id="delivery-map"></div>
+
+                                <div class="map-hint">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+                                    </svg>
+                                    Drag the pin or click anywhere to set your delivery spot.
+                                </div>
+
+                                <!-- Address textarea (auto-filled, editable) -->
+                                <div class="mt-3">
+                                    <textarea
+                                        x-model="address"
+                                        @input="geocodeAddress()"
+                                        rows="2"
+                                        placeholder="Address will appear here after you place the pin…"
+                                        class="field-input resize-none">
+                                    </textarea>
+                                </div>
+
+                                <!-- Hidden coordinate fields -->
+                                <input type="hidden" name="latitude"  x-model="latitude"  x-ref="lat">
+                                <input type="hidden" name="longitude" x-model="longitude" x-ref="lng">
                             </div>
+                            {{-- ── end delivery picker ── --}}
+
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-slate-600 mb-1.5">
                                     Special Instructions
@@ -271,14 +354,15 @@
                                     <span>Subtotal</span>
                                     <span>$<span x-text="subtotal.toFixed(2)"></span></span>
                                 </div>
-                                <div class="flex justify-between text-slate-500">
-                                    <span>Tax (8%)</span>
-                                    <span>$<span x-text="tax.toFixed(2)"></span></span>
-                                </div>
-                                <div class="flex justify-between text-slate-500">
-                                    <span>Delivery Fee</span>
-                                    <span>$<span x-text="deliveryFee.toFixed(2)"></span></span>
-                                </div>
+                              <div class="flex justify-between text-slate-500">
+    <span>Tax (<span x-text="taxRate"></span>%)</span>
+    <span>$<span x-text="tax.toFixed(2)"></span></span>
+</div>
+
+<div class="flex justify-between text-slate-500">
+    <span>Delivery Fee</span>
+    <span>$<span x-text="deliveryFee.toFixed(2)"></span></span>
+</div>
                                 <div class="flex justify-between font-bold text-base pt-3" style="border-top:2px solid #f1f5f9;">
                                     <span class="text-slate-800">Total</span>
                                     <span style="color:#d97706; font-size:1.15rem;">$<span x-text="total.toFixed(2)"></span></span>
@@ -347,6 +431,186 @@
 </section>
 
 <script>
+window.taxRate = {{ site_setting('tax_rate', 8) }};
+    window.deliveryFeeValue = {{ site_setting('delivery_fee', 5) }};
+// ─────────────────────────────────────────────
+// 🗺  RESTAURANT LOCATION — change these two values to your restaurant's coordinates
+// ─────────────────────────────────────────────
+const RESTAURANT_LAT = 27.7172;   // e.g. Kathmandu lat
+const RESTAURANT_LNG = 85.3240;   // e.g. Kathmandu lng
+const RESTAURANT_NAME = 'Our Restaurant'; // shown on the fixed restaurant marker
+// ─────────────────────────────────────────────
+
+function checkoutLocation() {
+    return {
+        address: '',
+        latitude: null,
+        longitude: null,
+
+        _map: null,
+        _marker: null,
+        _geocodeTimer: null,
+
+        init() {
+            // Wait one tick so Alpine has rendered the DOM
+            this.$nextTick(() => this._initMap());
+        },
+
+        _initMap() {
+            const map = L.map('delivery-map', {
+                center: [RESTAURANT_LAT, RESTAURANT_LNG],
+                zoom: 15,
+                zoomControl: true,
+            });
+            this._map = map;
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19,
+            }).addTo(map);
+
+            // Fixed restaurant marker (red)
+            const restaurantIcon = L.divIcon({
+                html: `<div style="
+                    background:#ef4444; color:#fff;
+                    border-radius:50% 50% 50% 0;
+                    width:26px; height:26px;
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:13px;
+                    transform:rotate(-45deg);
+                    box-shadow:0 2px 6px rgba(0,0,0,.25);
+                    border:2px solid #fff;">
+                    <span style="transform:rotate(45deg)">🍽️</span>
+                </div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 26],
+                className: '',
+            });
+            L.marker([RESTAURANT_LAT, RESTAURANT_LNG], { icon: restaurantIcon })
+                .addTo(map)
+                .bindPopup(`<strong style="font-size:.8rem">${RESTAURANT_NAME}</strong><br><span style="font-size:.72rem;color:#64748b">Your order starts here</span>`, { offset: [0, -22] })
+                .openPopup();
+
+            // Draggable delivery marker (amber)
+            const deliveryIcon = L.divIcon({
+                html: `<div style="
+                    background:linear-gradient(135deg,#f59e0b,#d97706);
+                    border-radius:50% 50% 50% 0;
+                    width:30px; height:30px;
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:15px;
+                    transform:rotate(-45deg);
+                    box-shadow:0 2px 8px rgba(245,158,11,.45);
+                    border:2px solid #fff;">
+                    <span style="transform:rotate(45deg)">📍</span>
+                </div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+                className: '',
+            });
+
+            // Place delivery marker at restaurant position initially
+            const marker = L.marker([RESTAURANT_LAT, RESTAURANT_LNG], {
+                icon: deliveryIcon,
+                draggable: true,
+            }).addTo(map).bindPopup('<span style="font-size:.75rem">Drag me to your delivery address</span>', { offset: [0, -26] });
+            this._marker = marker;
+
+            // Update on drag end
+            marker.on('dragend', (e) => {
+                const { lat, lng } = e.target.getLatLng();
+                this.latitude  = lat;
+                this.longitude = lng;
+                this._reverseGeocode(lat, lng);
+            });
+
+            // Click anywhere on map to move marker
+            map.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+                marker.setLatLng([lat, lng]);
+                this.latitude  = lat;
+                this.longitude = lng;
+                this._reverseGeocode(lat, lng);
+            });
+        },
+
+        // Reverse geocode lat/lng → address string
+        async _reverseGeocode(lat, lng) {
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+                    { headers: { 'Accept-Language': 'en' } }
+                );
+                const data = await res.json();
+                if (data && data.display_name) {
+                    this.address = data.display_name;
+                    // Sync to parent checkoutForm via custom event
+                    window.dispatchEvent(new CustomEvent('delivery-address-updated', {
+                        detail: { address: data.display_name, lat, lng }
+                    }));
+                }
+            } catch (e) {
+                console.warn('Reverse geocode failed:', e);
+            }
+        },
+
+        // Forward geocode typed address → move marker
+        geocodeAddress() {
+            clearTimeout(this._geocodeTimer);
+            if (!this.address.trim() || this.address.length < 5) return;
+            this._geocodeTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(this.address)}&limit=1`,
+                        { headers: { 'Accept-Language': 'en' } }
+                    );
+                    const results = await res.json();
+                    if (results.length) {
+                        const { lat, lon } = results[0];
+                        const latlng = [parseFloat(lat), parseFloat(lon)];
+                        this._map.setView(latlng, 16);
+                        this._marker.setLatLng(latlng);
+                        this.latitude  = latlng[0];
+                        this.longitude = latlng[1];
+                        window.dispatchEvent(new CustomEvent('delivery-address-updated', {
+                            detail: { address: this.address, lat: latlng[0], lng: latlng[1] }
+                        }));
+                    }
+                } catch (e) {
+                    console.warn('Forward geocode failed:', e);
+                }
+            }, 800);
+        },
+
+        // "Use my location" button
+        detectLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const latlng = [lat, lng];
+                    this._map.setView(latlng, 17);
+                    this._marker.setLatLng(latlng);
+                    this.latitude  = lat;
+                    this.longitude = lng;
+                    this._reverseGeocode(lat, lng);
+                },
+                (err) => {
+                    console.error(err);
+                    alert('Could not retrieve your location. Please allow location access or pin your address manually.');
+                }
+            );
+        },
+    };
+}
+
+// ─────────────────────────────────────────────
+
 function checkoutForm() {
     return {
         paymentMethod: 'cash',
@@ -355,8 +619,26 @@ function checkoutForm() {
         customerName: '',
         customerEmail: '',
         customerPhone: '',
-        deliveryAddress: '',
+        deliveryAddress: '',   // populated via map picker event
+        deliveryLat: null,
+        deliveryLng: null,
         specialInstructions: '',
+  taxRate: window.taxRate ?? 8,
+        baseDeliveryFee: window.deliveryFeeValue ?? 5,
+        init() {
+            // Listen for address updates from the map picker child component
+            window.addEventListener('delivery-address-updated', (e) => {
+                this.deliveryAddress = e.detail.address;
+                this.deliveryLat     = e.detail.lat;
+                this.deliveryLng     = e.detail.lng;
+            });
+
+            if (this.cartEmpty) {
+                setTimeout(() => {
+                    window.location.href = '{{ route("orders.index") }}';
+                }, 1500);
+            }
+        },
 
         get cart() {
             return JSON.parse(localStorage.getItem('cart') || '[]');
@@ -364,25 +646,19 @@ function checkoutForm() {
         get subtotal() {
             return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         },
-        get tax() {
-            return this.subtotal * 0.08;
-        },
-        get deliveryFee() {
-            return 5.00;
-        },
-        get total() {
-            return this.subtotal + this.tax + this.deliveryFee;
-        },
+      get tax() {
+    return this.subtotal * (this.taxRate / 100);
+},
+
+get deliveryFee() {
+    return this.baseDeliveryFee;
+},
+
+get total() {
+    return this.subtotal + this.tax + this.deliveryFee;
+},
         get cartEmpty() {
             return this.cart.length === 0;
-        },
-
-        init() {
-            if (this.cartEmpty) {
-                setTimeout(() => {
-                    window.location.href = '{{ route("orders.index") }}';
-                }, 1500);
-            }
         },
 
         async submitPayment() {
@@ -391,7 +667,7 @@ function checkoutForm() {
             if (!this.customerName.trim())    { this.errorMessage = 'Please enter your full name.';        return; }
             if (!this.customerEmail.trim())   { this.errorMessage = 'Please enter your email address.';   return; }
             if (!this.customerPhone.trim())   { this.errorMessage = 'Please enter your phone number.';    return; }
-            if (!this.deliveryAddress.trim()) { this.errorMessage = 'Please enter your delivery address.'; return; }
+            if (!this.deliveryAddress.trim()) { this.errorMessage = 'Please pin your delivery location on the map.'; return; }
             if (this.cartEmpty)               { this.errorMessage = 'Your cart is empty.';                 return; }
 
             this.loading = true;
@@ -409,6 +685,8 @@ function checkoutForm() {
                         customer_email:       this.customerEmail.trim(),
                         customer_phone:       this.customerPhone.trim(),
                         delivery_address:     this.deliveryAddress.trim(),
+                        latitude:             this.deliveryLat,
+                        longitude:            this.deliveryLng,
                         payment_method:       this.paymentMethod,
                         special_instructions: this.specialInstructions.trim(),
                         cart:                 JSON.stringify(this.cart),

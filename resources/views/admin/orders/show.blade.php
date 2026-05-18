@@ -95,18 +95,18 @@
                                 <p class="text-sm text-slate-500 mt-0.5">
                                     Qty: {{ $item->quantity }}
                                     &times;
-                                    ${{ number_format($item->price, 2) }}
+                                    {{ site_setting('currency_symbol', '$') }}{{ number_format($item->price, 2) }}
                                 </p>
                                 @if ($item->dish && $item->dish->category)
                                     <span class="inline-block mt-1 text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
-                                        {{ $item->dish->category->name }}
+                                       {{ $item->dish->category ?? 'Uncategorized' }}
                                     </span>
                                 @endif
                             </div>
 
                             {{-- Subtotal --}}
                             <span class="font-bold text-amber-600 text-lg flex-shrink-0">
-                                ${{ number_format($item->subtotal, 2) }}
+                                {{ site_setting('currency_symbol', '$') }}{{ number_format($item->subtotal, 2) }}
                             </span>
                         </div>
                     @endforeach
@@ -119,19 +119,19 @@
                 <div class="space-y-3">
                     <div class="flex justify-between text-slate-600">
                         <span>Subtotal</span>
-                        <span>${{ number_format($order->subtotal ?? 0, 2) }}</span>
+                        <span>{{ site_setting('currency_symbol', '$') }}{{ number_format($order->subtotal ?? 0, 2) }}</span>
                     </div>
                     <div class="flex justify-between text-slate-600">
-                        <span>Tax (8%)</span>
-                        <span>${{ number_format(($order->subtotal ?? 0) * 0.08, 2) }}</span>
+                        <span>Tax ({{ site_setting('tax_rate', 8) }}%)</span>
+                        <span>{{ site_setting('currency_symbol', '$') }}{{ number_format($order->tax ?? 0, 2) }}</span>
                     </div>
                     <div class="flex justify-between text-slate-600">
                         <span>Delivery Fee</span>
-                        <span>${{ number_format($order->delivery_fee ?? 5.00, 2) }}</span>
+                        <span>{{ site_setting('currency_symbol', '$') }}{{ number_format($order->delivery_fee ?? 0, 2) }}</span>
                     </div>
                     <div class="border-t-2 border-slate-200 pt-3 flex justify-between font-bold text-lg">
                         <span class="text-slate-800">Total</span>
-                        <span class="text-amber-600">${{ number_format($order->total, 2) }}</span>
+                        <span class="text-amber-600">{{ site_setting('currency_symbol', '$') }}{{ number_format($order->total, 2) }}</span>
                     </div>
                 </div>
             </div>

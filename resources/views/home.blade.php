@@ -7,7 +7,7 @@
     <div x-data="{
         currentSlide: 0,
         slides: [{
-                image: 'https://images.unsplash.com/photo-1514326640560-7d063f2aad03?w=1920&h=800&fit=crop',
+               image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&h=800&fit=crop',
                 title: 'Coastal Elegance',
                 subtitle: 'Where Ocean Meets Cuisine',
                 cta: 'Reserve Your Table'
@@ -139,7 +139,7 @@
                                 <p class="text-slate-600 mb-6 leading-relaxed">{{ $dish->description }}</p>
                                 <div class="flex justify-between items-center">
                                     <span class="text-4xl font-extrabold text-amber-600">${{ $dish->price }}</span>
-                                    <a href="{{ route('menu') }}"
+                                    <a href="{{ route('orders.index') }}"
                                         class="text-amber-600 hover:text-amber-700 font-bold text-lg transition-colors duration-300">Order
                                         Now →</a>
                                 </div>
@@ -171,7 +171,7 @@
                                 <p class="text-slate-600 mb-6 leading-relaxed">{{ $dish->description }}</p>
                                 <div class="flex justify-between items-center">
                                     <span class="text-4xl font-extrabold text-amber-600">${{ $dish->price }}</span>
-                                    <a href="{{ route('menu') }}"
+                                    <a href="{{ route('orders.index') }}"
                                         class="text-amber-600 hover:text-amber-700 font-bold text-lg transition-colors duration-300">Order
                                         Now →</a>
                                 </div>

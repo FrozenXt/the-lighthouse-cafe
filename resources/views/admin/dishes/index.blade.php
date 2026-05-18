@@ -3,158 +3,341 @@
 @section('title', 'Menu Management')
 
 @section('content')
-    <div class="mb-6">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h2 class="text-3xl font-serif font-bold text-slate-800 mb-2">Menu Management</h2>
-                <p class="text-slate-600">Manage all dishes and menu items</p>
-            </div>
-            <a href="{{ route('admin.dishes.create') }}"
-                class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-6 py-3 rounded-lg font-bold transition flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Add New Dish
-            </a>
+
+<div class="container-fluid py-4">
+
+    {{-- HEADER --}}
+    <div class="menu-header mb-4">
+
+        <div>
+            <h2 class="title">Menu Management</h2>
+            <p class="subtitle">Manage dishes, pricing and availability</p>
         </div>
+
+        <a href="{{ route('admin.dishes.create') }}" class="add-btn">
+            + Add Dish
+        </a>
+
     </div>
 
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-            <p class="text-slate-600 text-sm font-semibold mb-1">Total Dishes</p>
-            <h3 class="text-3xl font-bold text-slate-800">{{ $dishes->total() }}</h3>
+    {{-- STATS --}}
+    <div class="stats-row mb-3">
+
+        <div class="stat">
+            <span>Total</span>
+            <h3>{{ $dishes->total() }}</h3>
         </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-            <p class="text-slate-600 text-sm font-semibold mb-1">Available</p>
-            <h3 class="text-3xl font-bold text-slate-800">{{ $dishes->where('is_available', true)->count() }}</h3>
+
+        <div class="stat">
+            <span>Available</span>
+            <h3>{{ $dishes->where('is_available', true)->count() }}</h3>
         </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-            <p class="text-slate-600 text-sm font-semibold mb-1">Featured Today</p>
-            <h3 class="text-3xl font-bold text-slate-800">{{ $dishes->where('featured_type', 'day')->count() }}</h3>
+
+        <div class="stat">
+            <span>Today Specials</span>
+            <h3>{{ $dishes->where('featured_type', 'day')->count() }}</h3>
         </div>
-        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-            <p class="text-slate-600 text-sm font-semibold mb-1">Featured Week</p>
-            <h3 class="text-3xl font-bold text-slate-800">{{ $dishes->where('featured_type', 'week')->count() }}</h3>
+
+        <div class="stat">
+            <span>Week Specials</span>
+            <h3>{{ $dishes->where('featured_type', 'week')->count() }}</h3>
         </div>
+
     </div>
 
-    <!-- Dishes Table -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-slate-50 border-b-2 border-slate-200">
+    {{-- TABLE CARD --}}
+    <div class="menu-card">
+
+        <table class="menu-table">
+
+            <thead>
+                <tr>
+                    <th>Dish</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Rating</th>
+                    <th>Featured</th>
+                    <th>Status</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @forelse($dishes as $dish)
+
                     <tr>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Image</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Name</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Category</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Price</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Rating</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Featured</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Status</th>
-                        <th class="text-left py-4 px-6 font-bold text-slate-700">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($dishes as $dish)
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="py-4 px-6">
-                                @if ($dish->image)
-                                    <img src="{{ $dish->image_url }}" alt="{{ $dish->name }}"
-                                        class="w-16 h-16 rounded-lg object-cover">
-                                @else
-                                    <div class="w-16 h-16 rounded-lg bg-slate-200 flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="py-4 px-6">
-                                <div>
-                                    <p class="font-bold text-slate-800">{{ $dish->name }}</p>
-                                    <p class="text-sm text-slate-600 line-clamp-1">{{ $dish->description }}</p>
-                                </div>
-                            </td>
-                            <td class="py-4 px-6">
-                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                                    {{ $dish->category->name ?? 'Uncategorized' }}
-                                </span>
-                            </td>
-                            <td class="py-4 px-6">
-                                <span class="font-bold text-lg text-amber-600">${{ number_format($dish->price, 2) }}</span>
-                            </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center gap-1">
-                                    <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                    <span class="font-semibold">{{ $dish->rating }}</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-6">
-                                @if ($dish->featured_type === 'day')
-                                    <span
-                                        class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">Day</span>
-                                @elseif($dish->featured_type === 'week')
-                                    <span
-                                        class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">Week</span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-bold">None</span>
-                                @endif
-                            </td>
-                            <td class="py-4 px-6">
-                                <form action="{{ route('admin.dishes.toggle-availability', $dish) }}" method="POST">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-3 py-1 rounded-full text-xs font-bold transition {{ $dish->is_available ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200' }}">
-                                        {{ $dish->is_available ? 'Available' : 'Unavailable' }}
-                                    </button>
-                                </form>
-                            </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.dishes.edit', $dish) }}"
-                                        class="text-blue-600 hover:text-blue-800 font-semibold">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <form action="{{ route('admin.dishes.destroy', $dish) }}" method="POST"
-                                        onsubmit="return confirm('Delete this dish?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-12 text-slate-500">
-                                <p class="text-lg font-semibold">No dishes found</p>
-                                <a href="{{ route('admin.dishes.create') }}"
-                                    class="text-amber-600 hover:text-amber-700 mt-2 inline-block">Add your first dish</a>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
 
-        <!-- Pagination -->
-        <div class="p-6 border-t border-slate-200 bg-slate-50">
-            {{ $dishes->links() }}
-        </div>
+                        {{-- DISH --}}
+                        <td>
+                            <div class="dish">
+
+                                <img src="{{ $dish->image_url ?? 'https://via.placeholder.com/60' }}"
+                                     class="dish-img">
+
+                                <div>
+                                    <div class="dish-name">{{ $dish->name }}</div>
+                                    <div class="dish-desc">
+                                        {{ \Illuminate\Support\Str::limit($dish->description, 50) }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        {{-- CATEGORY --}}
+                        <td>
+                            <span class="badge">
+                                {{ $dish->category ?? 'Uncategorized' }}
+                            </span>
+                        </td>
+
+                        {{-- PRICE --}}
+                        <td class="price">
+                            ${{ number_format($dish->price, 2) }}
+                        </td>
+
+                        {{-- RATING --}}
+                        <td>
+                            ⭐ {{ $dish->rating }}
+                        </td>
+
+                        {{-- FEATURED --}}
+                        <td>
+                            @if($dish->featured_type == 'day')
+                                <span class="tag green">Today</span>
+                            @elseif($dish->featured_type == 'week')
+                                <span class="tag purple">Week</span>
+                            @else
+                                <span class="tag gray">None</span>
+                            @endif
+                        </td>
+
+                        {{-- STATUS --}}
+                        <td>
+                            <form action="{{ route('admin.dishes.toggle-availability', $dish) }}" method="POST">
+                                @csrf
+                                <button class="status-btn {{ $dish->is_available ? 'on' : 'off' }}">
+                                    {{ $dish->is_available ? 'Available' : 'Hidden' }}
+                                </button>
+                            </form>
+                        </td>
+
+                        {{-- ACTION --}}
+                        <td class="actions">
+
+                            <a href="{{ route('admin.dishes.edit', $dish) }}">Edit</a>
+
+                            <form action="{{ route('admin.dishes.destroy', $dish) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Delete dish?')">
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit">Delete</button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+                        <td colspan="7" class="empty">
+                            No dishes found
+                        </td>
+                    </tr>
+
+                @endforelse
+
+            </tbody>
+
+        </table>
+
     </div>
+
+    {{-- PAGINATION --}}
+    <div class="mt-3">
+        {{ $dishes->links() }}
+    </div>
+
+</div>
+
+{{-- STYLE --}}
+<style>
+
+body {
+    background: #f6f7fb;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #777;
+}
+
+.add-btn {
+    background: #111;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.stat {
+    background: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+}
+
+.stat span {
+    font-size: 12px;
+    color: #888;
+}
+
+.stat h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.menu-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    overflow: hidden;
+}
+
+.menu-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.menu-table th {
+    background: #fafafa;
+    font-size: 12px;
+    text-align: left;
+    padding: 12px;
+    color: #666;
+}
+
+.menu-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.dish {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dish-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.dish-name {
+    font-weight: 600;
+}
+
+.dish-desc {
+    font-size: 11px;
+    color: #888;
+}
+
+.badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.price {
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.tag {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.green { background:#dcfce7; color:#166534; }
+.purple { background:#ede9fe; color:#5b21b6; }
+.gray { background:#f3f4f6; color:#6b7280; }
+
+.status-btn {
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+.status-btn.on {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-btn.off {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+}
+
+.actions a {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.actions button {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+
+</style>
+
 @endsection

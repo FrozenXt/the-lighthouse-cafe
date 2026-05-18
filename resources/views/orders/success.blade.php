@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Order Confirmed - The Lighthouse Cafe')
+@section('title', 'Order Confirmed - ' . site_setting('site_name', 'The Lighthouse Cafe'))
 
 @section('content')
     <section class="py-20 bg-linear-to-br from-green-50 to-emerald-50 min-h-screen">
@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <h1 class="text-5xl md:text-6xl font-serif font-bold text-green-700 mb-4">Order Confirmed!</h1>
-                <p class="text-xl text-slate-600 mb-2">Thank you for your order at The Lighthouse Cafe</p>
+                <p class="text-xl text-slate-600 mb-2">Thank you for your order at {{ site_setting('site_name', 'The Lighthouse Cafe') }}</p>
                 <p class="text-slate-600">Your delicious meal will be prepared with care and delivered soon</p>
             </div>
 
@@ -63,8 +63,8 @@
                                     <p class="text-sm text-slate-600">Quantity: {{ $item->quantity }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-bold text-amber-600">${{ number_format($item->subtotal, 2) }}</p>
-                                    <p class="text-sm text-slate-600">${{ number_format($item->price, 2) }} each</p>
+                                    <p class="font-bold text-amber-600">{{ site_setting('currency_symbol', '$') }}{{ number_format($item->subtotal, 2) }}</p>
+                                    <p class="text-sm text-slate-600">{{ site_setting('currency_symbol', '$') }}{{ number_format($item->price, 2) }} each</p>
                                 </div>
                             </div>
                         @endforeach
@@ -74,24 +74,29 @@
                 <!-- Order Summary -->
                 <div class="mb-8">
                     <h2 class="text-2xl font-serif font-bold text-slate-800 mb-6">Order Summary</h2>
+
                     <div class="space-y-3">
+
                         <div class="flex justify-between text-lg text-slate-700">
                             <span>Subtotal:</span>
-                            <span class="font-semibold">${{ number_format($order->subtotal, 2) }}</span>
+                            <span class="font-semibold">{{ site_setting('currency_symbol', '$') }}{{ number_format($order->subtotal, 2) }}</span>
                         </div>
+
                         <div class="flex justify-between text-lg text-slate-700">
-                            <span>Tax (8%):</span>
-                            <span class="font-semibold">${{ number_format($order->tax, 2) }}</span>
+                            <span>Tax ({{ site_setting('tax_rate', 8) }}%)</span>
+                            <span class="font-semibold">{{ site_setting('currency_symbol', '$') }}{{ number_format($order->tax, 2) }}</span>
                         </div>
+
                         <div class="flex justify-between text-lg text-slate-700">
                             <span>Delivery Fee:</span>
-                            <span class="font-semibold">${{ number_format($order->delivery_fee, 2) }}</span>
+                            <span class="font-semibold">{{ site_setting('currency_symbol', '$') }}{{ number_format($order->delivery_fee, 2) }}</span>
                         </div>
-                        <div
-                            class="flex justify-between text-2xl font-bold text-slate-800 pt-4 border-t-2 border-slate-300">
+
+                        <div class="flex justify-between text-2xl font-bold text-slate-800 pt-4 border-t-2 border-slate-300">
                             <span>Total:</span>
-                            <span class="text-amber-600">${{ number_format($order->total, 2) }}</span>
+                            <span class="text-amber-600">{{ site_setting('currency_symbol', '$') }}{{ number_format($order->total, 2) }}</span>
                         </div>
+
                     </div>
                 </div>
 
@@ -189,8 +194,8 @@
             <div class="text-center mt-12 pt-8 border-t border-slate-300">
                 <p class="text-slate-600 mb-4">Have questions about your order?</p>
                 <div class="space-y-2 text-slate-700">
-                    <p class="font-semibold">📞 Call us: (617) 395-8200</p>
-                    <p class="font-semibold">✉️ Email: info@lighthousecafe.com</p>
+                    <p class="font-semibold">📞 Call us: {{ site_setting('contact_phone') }}</p>
+                    <p class="font-semibold">✉️ Email: {{ site_setting('contact_email') }}</p>
                 </div>
             </div>
         </div>

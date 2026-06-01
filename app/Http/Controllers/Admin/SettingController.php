@@ -34,7 +34,7 @@ class SettingController extends Controller
 
             // Branding — files
             'site_logo'              => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
-            'site_favicon'           => 'nullable|image|mimes:png,ico,jpg|max:1024',
+            'site_favicon'           => 'nullable|image|mimes:png,ico,jpg|max:2048',
 
             // Branding — colors
             'color_primary'          => 'nullable|string|max:7',

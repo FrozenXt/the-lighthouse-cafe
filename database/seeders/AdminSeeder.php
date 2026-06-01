@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         AdminUser::create([
             'name' => 'Admin',
             'email' => 'admin@lighthousecafe.com',
-            'password' => Hash::make('password'), // Change this in production!
+            'password' => Hash::make('lighthouse8855'), // Change this in production!
             'role' => 'admin',
             'is_active' => true
         ]);
@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
         AdminUser::create([
             'name' => 'Manager',
             'email' => 'manager@lighthousecafe.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('lighthouse8855'),
             'role' => 'manager',
             'is_active' => true
         ]);

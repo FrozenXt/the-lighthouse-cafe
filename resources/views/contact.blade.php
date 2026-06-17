@@ -74,7 +74,7 @@
                                 <div>
                                     <h3 class="text-xl font-bold text-slate-800 mb-2">Phone</h3>
                                     <p class="text-slate-600 font-semibold text-lg">(617) 395-8200</p>
-                                    <p class="text-slate-600 text-sm mt-2">Mon-Sun: 11:00 AM - 10:00 PM</p>
+                                    <p class="text-slate-600 text-sm mt-2">Mon-Sun: 6:30 AM - 1:30 PM</p>
                                 </div>
                             </div>
                         </div>

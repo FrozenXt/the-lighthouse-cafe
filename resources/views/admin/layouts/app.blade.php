@@ -78,9 +78,7 @@
                     <p class="text-xs text-slate-500 uppercase tracking-wider">Management</p>
                 </div>
 
-                <!-- Orders -->
-              {{-- ❌ Wrong --}}
-               {{-- ✅ Correct --}}
+
 <a href="{{ route('admin.orders.index') }}"
                     class="flex items-center px-4 py-3 mb-2 rounded-lg transition {{ request()->routeIs('admin.orders*') ? 'bg-amber-500 text-slate-900' : 'hover:bg-slate-700' }}">
                     <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

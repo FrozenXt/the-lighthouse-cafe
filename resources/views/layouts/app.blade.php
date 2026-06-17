@@ -6,16 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    @php
-        $favicon = $settings['site_favicon']->value ?? null;
+     @php
+        $logo = site_setting('site_logo');
+        $favicon = site_setting('site_favicon');
     @endphp
 
     {{-- Favicon --}}
-    @if($favicon)
-        <link rel="icon" type="image/x-icon" href="{{ Storage::url($favicon) }}">
-    @else
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    @endif
+    <link rel="icon" type="image/x-icon"
+          href="{{ $favicon ? asset('storage/' . $favicon) : asset('favicon.ico') }}">
+
 
     <title>@yield('title', 'The Lighthouse Cafe - Coastal Fine Dining')</title>
 
@@ -64,8 +63,7 @@
 
     </a>
 </div>
-
-            <!-- Desktop Menu -->
+ <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-8">
 
                 <a href="{{ route('home') }}" class="nav-link text-slate-200 hover:text-amber-400">Home</a>

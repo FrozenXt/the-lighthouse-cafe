@@ -2,11 +2,29 @@
 <!DOCTYPE html>
 <html lang="en">
 
+{{-- @php
+    $favicon = \App\Models\SiteSetting::first()?->site_favicon;
+@endphp --}}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>@yield('title') - Admin Dashboard</title>
+
+    @php
+        $logo = site_setting('site_logo');
+        $favicon = site_setting('site_favicon');
+    @endphp
+
+    {{-- Favicon --}}
+    <link rel="icon" type="image/x-icon"
+          href="{{ $favicon ? asset('storage/' . $favicon) : asset('favicon.ico') }}">
+
+    {{-- Styles --}}
     @vite(['resources/css/app.css'])
+
+    {{-- Alpine.js --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 

@@ -191,11 +191,11 @@
                             <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Email</p>
 
                             <p class="text-lg font-semibold text-slate-800">
-                                {{ site_setting('contact_email', 'info@lighthousecafe.com') }}
+                                {{ site_setting('contact_email', 'lighthousecafe26@gmail.com') }}
                             </p>
 
                             <p class="text-slate-600 text-sm mt-1">
-                                Reservations: reserve@lighthousecafe.com
+                                Reservations: lighthousecafe26@gmail.com
                             </p>
                         </div>
                     </div>

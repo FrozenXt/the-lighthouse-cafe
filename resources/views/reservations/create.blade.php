@@ -178,7 +178,7 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-serif font-bold mb-2">Contact</h3>
-                    <p class="text-gray-600">(781) 391-0009<br>info@lighthousecafe.com</p>
+                    <p class="text-gray-600">(781) 391-0009<br>lighthousecafe26@gmail.com</p>
                 </div>
             </div>
         </div>

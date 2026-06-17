@@ -91,9 +91,9 @@
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-slate-800 mb-2">Email</h3>
-                                    <p class="text-slate-600 font-semibold">info@lighthousecafe.com</p>
+                                    <p class="text-slate-600 font-semibold">lighthousecafe26@gmail.com</p>
                                     <p class="text-slate-600 text-sm mt-2">For reservations:</p>
-                                    <p class="text-slate-600 font-semibold">reserve@lighthousecafe.com</p>
+                                    <p class="text-slate-600 font-semibold">lighthousecafe26@gmail.com</p>
                                 </div>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
                                     <h3 class="text-xl font-bold text-slate-800 mb-3">Hours</h3>
                                     <div class="space-y-1 text-slate-600 text-sm">
                                         <p><span class="font-semibold">Monday - Sunday:</span></p>
-                                        <p>11:00 AM - 10:00 PM</p>
+                                        <p>6:30 AM - 1:30 PM</p>
                                         <p class="pt-2 italic">Closed on major holidays</p>
                                     </div>
                                 </div>

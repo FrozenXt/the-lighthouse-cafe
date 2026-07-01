@@ -3,32 +3,87 @@
 @section('title', 'About Us - The Lighthouse Cafe')
 
 @section('content')
+
+    {{-- AOS.js + Swiper.js CDN (add these to your layouts/app.blade.php <head>/before </body>
+         instead if you prefer them centralized site-wide) --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+    <style>
+        /* Subtle custom polish that Tailwind utilities don't cover */
+        .lh-swiper .swiper-slide {
+            opacity: 0.4;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .lh-swiper .swiper-slide-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .lh-swiper .swiper-pagination-bullet-active {
+            background: #0d9488; /* teal-600 */
+        }
+        .lh-swiper .swiper-button-next,
+        .lh-swiper .swiper-button-prev {
+            color: #fff;
+            background: rgba(0, 0, 0, 0.35);
+            width: 44px;
+            height: 44px;
+            border-radius: 9999px;
+            backdrop-filter: blur(4px);
+        }
+        .lh-swiper .swiper-button-next::after,
+        .lh-swiper .swiper-button-prev::after {
+            font-size: 18px;
+        }
+        .hover-lift {
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px);
+        }
+        .ken-burns {
+            animation: kenburns 18s ease-in-out infinite alternate;
+        }
+        @keyframes kenburns {
+            0%   { transform: scale(1); }
+            100% { transform: scale(1.12); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ken-burns { animation: none; }
+        }
+    </style>
+
     <!-- Hero Section -->
-    <div class="relative h-96 bg-cover bg-center overflow-hidden"
-    style="background-image: url('{{ asset('images/first.jpg') }}');">
+    <div class="relative h-96 overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center ken-burns"
+             style="background-image: url('{{ asset('images/first.jpg') }}');">
+        </div>
+        <div class="absolute inset-0 bg-linear-to-br from-black/60 via-teal-900/50 to-blue-900/60"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
 
-    <div class="absolute inset-0 bg-linear-to-br from-black/60 via-teal-900/50 to-blue-900/60"></div>
-    <div class="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
-
-    <div class="relative h-full flex items-center">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white text-center w-full">
-            <h1 class="text-5xl md:text-6xl font-serif font-extrabold mb-4 drop-shadow-2xl">
-                About The Lighthouse Cafe
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-100 drop-shadow-lg">
-                Where culinary excellence meets warm hospitality
-            </p>
+        <div class="relative h-full flex items-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white text-center w-full">
+                <h1 data-aos="fade-down" data-aos-duration="900"
+                    class="text-5xl md:text-6xl font-serif font-extrabold mb-4 drop-shadow-2xl">
+                    About The Lighthouse Cafe
+                </h1>
+                <p data-aos="fade-up" data-aos-duration="900" data-aos-delay="200"
+                   class="text-xl md:text-2xl text-gray-100 drop-shadow-lg">
+                    Where culinary excellence meets warm hospitality
+                </p>
+            </div>
         </div>
     </div>
-</div>
 
     <!-- Main Content -->
     <div class="bg-white">
+
         <!-- Story Section -->
         <section class="py-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div>
+                    <div data-aos="fade-right" data-aos-duration="800">
                         <h2 class="text-4xl font-serif font-bold text-slate-800 mb-6">Our Story</h2>
                         <p class="text-lg text-slate-600 mb-4 leading-relaxed">
                             The Lighthouse Cafe was founded with a simple mission: to create a sanctuary where exceptional
@@ -45,10 +100,10 @@
                             each plate tells a story of dedication to the culinary arts.
                         </p>
                     </div>
-                    <div class="relative">
-                       <img src="{{ asset('images/about.png') }}">
-                        <div
-                            class="absolute -bottom-6 -right-6 bg-linear-to-br from-yellow-400 to-orange-500 rounded-xl p-8 text-white shadow-xl">
+                    <div class="relative" data-aos="fade-left" data-aos-duration="800">
+                        <img src="{{ asset('images/about.png') }}" class="rounded-xl shadow-xl w-full">
+                        <div data-aos="zoom-in" data-aos-delay="300"
+                             class="absolute -bottom-6 -right-6 bg-linear-to-br from-yellow-400 to-orange-500 rounded-xl p-8 text-white shadow-xl">
                             <p class="text-5xl font-bold">10+</p>
                             <p class="text-sm font-semibold">Years of Excellence</p>
                         </div>
@@ -57,18 +112,54 @@
             </div>
         </section>
 
+        <!-- Gallery / Sliding Images Section (Swiper) -->
+        <section class="py-24 bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-14" data-aos="fade-up">
+                    <p class="text-teal-400 font-semibold tracking-widest uppercase text-sm mb-2">A Glimpse Inside</p>
+                    <h2 class="text-4xl font-serif font-bold text-white">Life at The Lighthouse</h2>
+                </div>
+            </div>
+
+            <div class="swiper lh-swiper max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" data-aos="zoom-in" data-aos-delay="150">
+                <div class="swiper-wrapper">
+                    {{-- Swap these image paths for your own gallery photos. site_setting-driven
+                         images are untouched elsewhere in the page. --}}
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/first.jpg') }}" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/about.png') }}" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/gallery-1.jpg') }}" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/gallery-2.jpg') }}" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                    </div>
+                    <div class="swiper-slide">
+                        <img src="{{ asset('images/gallery-4.jpg') }}" class="w-full h-96 object-cover rounded-2xl shadow-2xl">
+                    </div>
+                </div>
+                <div class="swiper-pagination mt-6"></div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+        </section>
+
         <!-- Values Section -->
         <section class="py-24 bg-linear-to-br from-slate-50 to-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-4xl font-serif font-bold text-slate-800 text-center mb-16">Our Core Values</h2>
+                <h2 data-aos="fade-up" class="text-4xl font-serif font-bold text-slate-800 text-center mb-16">
+                    Our Core Values
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                     <!-- Quality -->
-                    <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition duration-300">
-                        <div
-                            class="w-16 h-16 bg-linear-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center mb-6">
+                    <div data-aos="fade-up" data-aos-delay="0"
+                         class="hover-lift bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl">
+                        <div class="w-16 h-16 bg-linear-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center mb-6">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-slate-800 mb-3">Quality First</h3>
@@ -79,12 +170,11 @@
                     </div>
 
                     <!-- Community -->
-                    <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition duration-300">
-                        <div
-                            class="w-16 h-16 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mb-6">
+                    <div data-aos="fade-up" data-aos-delay="150"
+                         class="hover-lift bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl">
+                        <div class="w-16 h-16 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mb-6">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v2h8v-2zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-2a4 4 0 00-8 0v2h8z" />
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v2h8v-2zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-2a4 4 0 00-8 0v2h8z" />
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-slate-800 mb-3">Community Focused</h3>
@@ -95,9 +185,9 @@
                     </div>
 
                     <!-- Innovation -->
-                    <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition duration-300">
-                        <div
-                            class="w-16 h-16 bg-linear-to-br from-pink-500 to-red-600 rounded-lg flex items-center justify-center mb-6">
+                    <div data-aos="fade-up" data-aos-delay="300"
+                         class="hover-lift bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl">
+                        <div class="w-16 h-16 bg-linear-to-br from-pink-500 to-red-600 rounded-lg flex items-center justify-center mb-6">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
@@ -115,120 +205,109 @@
         </section>
 
         <!-- Location Section -->
-       <section class="py-24 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <!-- LEFT SIDE -->
+                    <div data-aos="fade-right" data-aos-duration="800">
+                        <h2 class="text-4xl font-serif font-bold text-slate-800 mb-8">
+                            Visit Us
+                        </h2>
 
-            <!-- LEFT SIDE -->
-            <div>
-                <h2 class="text-4xl font-serif font-bold text-slate-800 mb-8">
-                    Visit Us
-                </h2>
+                        <div class="bg-linear-to-br from-slate-50 to-gray-100 rounded-xl p-8 space-y-6">
 
-                <div class="bg-linear-to-br from-slate-50 to-gray-100 rounded-xl p-8 space-y-6">
+                            <!-- Address -->
+                            <div class="flex items-start gap-4" data-aos="fade-up" data-aos-delay="0">
+                                <div class="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Address</p>
+                                    <p class="text-lg font-semibold text-slate-800">
+                                        {{ site_setting('site_name', 'The Lighthouse Cafe') }}
+                                    </p>
+                                    <p class="text-slate-600">
+                                        {{ site_setting('restaurant_address', '20 High Street') }}
+                                    </p>
+                                    <p class="text-slate-600">
+                                        Medford, MA 02155, USA
+                                    </p>
+                                </div>
+                            </div>
 
-                    <!-- Address -->
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <!-- icon -->
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                            <!-- Phone -->
+                            <div class="flex items-start gap-4" data-aos="fade-up" data-aos-delay="150">
+                                <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773c.537 1.477 1.472 2.783 2.653 3.72l.773-1.548a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Phone</p>
+                                    <p class="text-lg font-semibold text-slate-800">
+                                        {{ site_setting('contact_phone', '(617) 395-8200') }}
+                                    </p>
+                                    <p class="text-slate-600 text-sm mt-1">
+                                        Mon-Sun: 11:00 AM - 10:00 PM
+                                    </p>
+                                </div>
+                            </div>
 
-                        <div>
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Address</p>
+                            <!-- Email -->
+                            <div class="flex items-start gap-4" data-aos="fade-up" data-aos-delay="300">
+                                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Email</p>
+                                    <p class="text-lg font-semibold text-slate-800">
+                                        {{ site_setting('contact_email', 'lighthousecafe26@gmail.com') }}
+                                    </p>
+                                    <p class="text-slate-600 text-sm mt-1">
+                                        Reservations: lighthousecafe26@gmail.com
+                                    </p>
+                                </div>
+                            </div>
 
-                            <p class="text-lg font-semibold text-slate-800">
-                                {{ site_setting('site_name', 'The Lighthouse Cafe') }}
-                            </p>
-
-                            <p class="text-slate-600">
-                                {{ site_setting('restaurant_address', '20 High Street') }}
-                            </p>
-
-                            <p class="text-slate-600">
-                                Medford, MA 02155, USA
-                            </p>
                         </div>
                     </div>
 
-                    <!-- Phone -->
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773c.537 1.477 1.472 2.783 2.653 3.72l.773-1.548a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                            </svg>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Phone</p>
-
-                            <p class="text-lg font-semibold text-slate-800">
-                                {{ site_setting('contact_phone', '(617) 395-8200') }}
-                            </p>
-
-                            <p class="text-slate-600 text-sm mt-1">
-                                Mon-Sun: 11:00 AM - 10:00 PM
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                            </svg>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Email</p>
-
-                            <p class="text-lg font-semibold text-slate-800">
-                                {{ site_setting('contact_email', 'lighthousecafe26@gmail.com') }}
-                            </p>
-
-                            <p class="text-slate-600 text-sm mt-1">
-                                Reservations: lighthousecafe26@gmail.com
-                            </p>
-                        </div>
+                    <!-- RIGHT SIDE MAP -->
+                    <div class="rounded-xl overflow-hidden shadow-2xl" data-aos="fade-left" data-aos-duration="800">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ urlencode(site_setting('restaurant_address', '20 High Street, Medford, MA')) }}&output=embed"
+                            width="100%"
+                            height="400"
+                            style="border:0;"
+                            loading="lazy">
+                        </iframe>
                     </div>
 
                 </div>
             </div>
-
-            <!-- RIGHT SIDE MAP -->
-            <div class="rounded-xl overflow-hidden shadow-2xl">
-                <iframe
-                    src="https://www.google.com/maps?q={{ urlencode(site_setting('restaurant_address', '20 High Street, Medford, MA')) }}&output=embed"
-                    width="100%"
-                    height="400"
-                    style="border:0;"
-                    loading="lazy">
-                </iframe>
-            </div>
-
-        </div>
-    </div>
-</section>
+        </section>
 
         <!-- Team Section -->
         <section class="py-24 bg-linear-to-br from-slate-50 to-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-4xl font-serif font-bold text-slate-800 text-center mb-16">Meet Our Team</h2>
+                <h2 data-aos="fade-up" class="text-4xl font-serif font-bold text-slate-800 text-center mb-16">
+                    Meet Our Team
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                     <!-- Chef -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300">
+                    <div data-aos="flip-left" data-aos-delay="0"
+                         class="hover-lift bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl">
                         <div class="h-64 bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center">
                             <svg class="w-32 h-32 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
                         <div class="p-6">
@@ -242,11 +321,11 @@
                     </div>
 
                     <!-- Sommelier -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300">
+                    <div data-aos="flip-left" data-aos-delay="150"
+                         class="hover-lift bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl">
                         <div class="h-64 bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                             <svg class="w-32 h-32 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
                         <div class="p-6">
@@ -260,11 +339,11 @@
                     </div>
 
                     <!-- Manager -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300">
+                    <div data-aos="flip-left" data-aos-delay="300"
+                         class="hover-lift bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl">
                         <div class="h-64 bg-gradient-to-br from-pink-400 to-red-500 flex items-center justify-center">
                             <svg class="w-32 h-32 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
                         <div class="p-6">
@@ -283,11 +362,13 @@
         <!-- CTA Section -->
         <section class="py-16 bg-linear-to-r from-teal-600 to-blue-700">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-4xl font-serif font-bold text-white mb-6">Ready to Experience Excellence?</h2>
-                <p class="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
+                <h2 data-aos="zoom-in" class="text-4xl font-serif font-bold text-white mb-6">
+                    Ready to Experience Excellence?
+                </h2>
+                <p data-aos="fade-up" data-aos-delay="100" class="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
                     Join us for an unforgettable culinary journey. Reserve your table today!
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <div data-aos="fade-up" data-aos-delay="200" class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="{{ route('reservations.create') }}"
                         class="inline-block bg-white text-teal-600 hover:bg-gray-100 font-bold py-4 px-10 rounded-lg transition duration-300 transform hover:scale-105">
                         Make a Reservation
@@ -300,4 +381,41 @@
             </div>
         </section>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-cubic',
+                once: true,
+                offset: 80,
+            });
+
+            new Swiper('.lh-swiper', {
+                loop: true,
+                centeredSlides: true,
+                slidesPerView: 1.15,
+                spaceBetween: 24,
+                breakpoints: {
+                    768: { slidesPerView: 1.6 },
+                    1024: { slidesPerView: 2.2 },
+                },
+                autoplay: {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.lh-swiper .swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.lh-swiper .swiper-button-next',
+                    prevEl: '.lh-swiper .swiper-button-prev',
+                },
+            });
+        });
+    </script>
+
 @endsection
